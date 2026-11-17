@@ -1,13 +1,15 @@
-const CACHE_NAME = 'maripocell-pwa-v3';
+const CACHE_NAME = 'jr-accesorios-pwa-v1';
 
 const PRECACHE_ASSETS = [
     '/',
     '/offline',
     '/static/manifest.json',
     '/static/favicon.ico',
+    '/static/img/logojr.png',
+    '/static/img/logojr_square.png',
     '/static/img/icons/icon-192x192.png',
     '/static/img/icons/icon-512x512.png',
-    'https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&display=swap',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'

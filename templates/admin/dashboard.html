@@ -2,61 +2,42 @@
 
 {% block extra_css %}
 <style>
-    /* Estilos Premium para Tarjetas KPI del Dashboard (Gold Glow & Shimmer) */
+    /* Estilos Tarjetas KPI del Dashboard (Earth & Coffee White Canvas) */
     .kpi-card {
         position: relative;
         overflow: hidden;
-        background: linear-gradient(150deg, #FFFFFF 0%, #FAFAFC 60%, #FFFDF6 100%);
-        border: 1.5px solid rgba(229, 231, 235, 0.95);
+        background: #FFFFFF;
+        border: 1px solid #EFEBE9;
         border-radius: 20px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.035);
-        transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 18px rgba(111, 78, 55, 0.05);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     .kpi-card-gold {
-        border-color: rgba(212, 175, 55, 0.38) !important;
-        background: linear-gradient(150deg, #FFFFFF 0%, #FFFEFA 50%, #FFF9E9 100%) !important;
+        border-color: rgba(141, 73, 37, 0.35) !important;
+        background: #FFFFFF !important;
     }
-    
-    /* Destello de luz ambiental en la esquina */
+
     .kpi-card-gold::before {
         content: '';
         position: absolute;
-        top: -40px;
-        right: -40px;
-        width: 130px;
-        height: 130px;
-        background: radial-gradient(circle, rgba(212, 175, 55, 0.28) 0%, rgba(243, 208, 121, 0.08) 50%, transparent 75%);
-        border-radius: 50%;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #8D4925 0%, #6F4E37 100%);
         pointer-events: none;
         z-index: 1;
     }
 
-    /* Animación de Destello Shimmer Dorado */
     .kpi-shimmer::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -150%;
-        width: 80%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.15) 50%, transparent 100%);
-        transform: skewX(-25deg);
-        animation: kpiShimmerMove 6s infinite ease-in-out;
-        pointer-events: none;
-        z-index: 2;
-    }
-    
-    @keyframes kpiShimmerMove {
-        0% { left: -150%; }
-        25% { left: 160%; }
-        100% { left: 160%; }
+        display: none;
     }
 
     .kpi-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 28px -4px rgba(212, 175, 55, 0.22), 0 4px 14px rgba(0, 0, 0, 0.05);
-        border-color: #D4AF37 !important;
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px -4px rgba(111, 78, 55, 0.14);
+        border-color: #8D4925 !important;
     }
 
     /* Cajas de Iconos Superiores */
@@ -74,59 +55,60 @@
         z-index: 3;
     }
     .kpi-card:hover .kpi-icon-box {
-        transform: scale(1.1);
+        transform: scale(1.08);
     }
-    
+
     .kpi-icon-gold {
-        background: linear-gradient(135deg, #D4AF37 0%, #F3D079 100%);
-        color: #111827;
-        box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+        background: linear-gradient(135deg, #8D4925 0%, #6F4E37 100%);
+        color: #FFFFFF;
+        box-shadow: 0 4px 14px rgba(141, 73, 37, 0.28);
     }
     .kpi-icon-dark {
-        background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
-        color: #D4AF37;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        background: rgba(196, 164, 130, 0.22);
+        color: #2C1E1A;
+        border: 1px solid #C4A482;
     }
     .kpi-icon-danger {
-        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
-        color: #DC2626;
-        border: 1px solid rgba(220, 38, 38, 0.2);
+        background: rgba(185, 28, 28, 0.08);
+        color: #B91C1C;
+        border: 1px solid rgba(185, 28, 28, 0.22);
     }
     .kpi-icon-success {
-        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
-        color: #059669;
-        border: 1px solid rgba(5, 150, 105, 0.2);
+        background: rgba(141, 73, 37, 0.10);
+        color: #8D4925;
+        border: 1px solid rgba(141, 73, 37, 0.25);
     }
 
     /* Badges de Periodo */
     .kpi-badge-gold {
-        background: rgba(212, 175, 55, 0.12);
-        color: #926C09;
-        border: 1px solid rgba(212, 175, 55, 0.35);
+        background: rgba(141, 73, 37, 0.08);
+        color: #8D4925;
+        border: 1px solid rgba(141, 73, 37, 0.28);
         font-weight: 700;
         font-size: 0.72rem;
         letter-spacing: 0.5px;
     }
     .kpi-badge-dark {
-        background: #1F2937;
-        color: #F9FAFB;
+        background: #2C1E1A;
+        color: #FFFFFF;
         font-weight: 700;
         font-size: 0.72rem;
     }
 
     /* Contenedor de detalles secundarios */
     .kpi-details-box {
-        background: rgba(248, 250, 252, 0.85);
+        background: #FFFFFF;
         border-radius: 10px;
         padding: 0.45rem 0.65rem;
-        border: 1px solid #EEF2F6;
+        border: 1px solid #EFEBE9;
     }
 
     /* Cifras Grandes */
     .kpi-main-number {
-        font-family: var(--font-heading);
-        font-weight: 900;
+        font-family: var(--font-mono);
+        font-weight: 800;
         letter-spacing: -0.5px;
+        color: #8D4925;
     }
 </style>
 {% endblock %}

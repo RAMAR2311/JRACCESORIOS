@@ -7,18 +7,24 @@
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <h2 class="fw-bold text-brand-black m-0">{{ cliente.nombre_o_razon_social }}</h2>
             {% if cliente.local_numero %}
-                <span class="badge bg-light text-dark border px-3 py-1 fs-6"><i class="fa-solid fa-location-dot me-1 text-danger"></i>{{ cliente.local_numero }}</span>
+            <span class="badge bg-light text-dark border px-3 py-1 fs-6"><i
+                    class="fa-solid fa-location-dot me-1 text-danger"></i>{{ cliente.local_numero }}</span>
             {% endif %}
             {% if saldo_pendiente > 0 %}
-                <span class="badge bg-danger rounded-pill px-3 py-1 fs-6"><i class="fa-solid fa-triangle-exclamation me-1"></i>Deuda Activa</span>
+            <span class="badge bg-danger rounded-pill px-3 py-1 fs-6"><i
+                    class="fa-solid fa-triangle-exclamation me-1"></i>Deuda Activa</span>
             {% else %}
-                <span class="badge bg-success rounded-pill px-3 py-1 fs-6"><i class="fa-solid fa-circle-check me-1"></i>Cuenta al Día</span>
+            <span class="badge bg-success rounded-pill px-3 py-1 fs-6"><i
+                    class="fa-solid fa-circle-check me-1"></i>Cuenta al Día</span>
             {% endif %}
         </div>
         <p class="text-muted small m-0 mt-1">
-            {% if cliente.contacto_persona %}<span class="me-2"><i class="fa-solid fa-user text-muted me-1"></i>Contacto: <strong>{{ cliente.contacto_persona }}</strong></span>{% endif %}
+            {% if cliente.contacto_persona %}<span class="me-2"><i
+                    class="fa-solid fa-user text-muted me-1"></i>Contacto: <strong>{{ cliente.contacto_persona
+                    }}</strong></span>{% endif %}
             {% if cliente.telefono %}
-                <span class="me-2"><i class="fa-solid fa-phone text-muted me-1"></i>Tel: <strong>{{ cliente.telefono }}</strong></span>
+            <span class="me-2"><i class="fa-solid fa-phone text-muted me-1"></i>Tel: <strong>{{ cliente.telefono
+                    }}</strong></span>
             {% endif %}
             <span class="text-muted">· Registrado el {{ cliente.fecha_registro.strftime('%d/%m/%Y') }}</span>
         </p>
@@ -55,16 +61,18 @@
 <div class="row g-3 mb-4">
     <!-- Saldo Pendiente Actual -->
     <div class="col-md-6 col-lg-3">
-        <div class="card card-custom p-3 border-0 shadow-sm {% if saldo_pendiente > 0 %}bg-danger bg-opacity-10 border border-danger{% else %}bg-white{% endif %} h-100">
-            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Saldo Pendiente por Cobrar</span>
+        <div
+            class="card card-custom p-3 border-0 shadow-sm {% if saldo_pendiente > 0 %}bg-danger bg-opacity-10 border border-danger{% else %}bg-white{% endif %} h-100">
+            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Saldo Pendiente por
+                Cobrar</span>
             <h3 class="fw-bold {% if saldo_pendiente > 0 %}text-danger{% else %}text-success{% endif %} my-1">
                 ${{ '{:,.0f}'.format(saldo_pendiente) }}
             </h3>
             <small class="text-muted">
                 {% if saldo_pendiente > 0 %}
-                    <i class="fa-solid fa-clock me-1 text-danger"></i>Cobro pendiente
+                <i class="fa-solid fa-clock me-1 text-danger"></i>Cobro pendiente
                 {% else %}
-                    <i class="fa-solid fa-check me-1 text-success"></i>Sin dinero adeudado
+                <i class="fa-solid fa-check me-1 text-success"></i>Sin dinero adeudado
                 {% endif %}
             </small>
         </div>
@@ -73,7 +81,8 @@
     <!-- Unidades Físicas en su Poder -->
     <div class="col-md-6 col-lg-3">
         <div class="card card-custom p-3 bg-white border-0 shadow-sm h-100">
-            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Mercancía en su Poder</span>
+            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Mercancía en su
+                Poder</span>
             <h3 class="fw-bold text-brand-black my-1">
                 {{ unidades_pendientes }} <span class="fs-6 text-muted fw-normal">unidades</span>
             </h3>
@@ -84,7 +93,8 @@
     <!-- Total Cobrado / Facturado -->
     <div class="col-md-6 col-lg-3">
         <div class="card card-custom p-3 bg-white border-0 shadow-sm h-100">
-            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Total Cobrado (Histórico)</span>
+            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Total Cobrado
+                (Histórico)</span>
             <h3 class="fw-bold text-success my-1">
                 ${{ '{:,.0f}'.format(total_cobrado) }}
             </h3>
@@ -95,7 +105,8 @@
     <!-- Total Devuelto -->
     <div class="col-md-6 col-lg-3">
         <div class="card card-custom p-3 bg-white border-0 shadow-sm h-100">
-            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Total Devuelto en Producto</span>
+            <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Total Devuelto en
+                Producto</span>
             <h3 class="fw-bold text-secondary my-1">
                 ${{ '{:,.0f}'.format(total_devuelto) }}
             </h3>
@@ -109,13 +120,15 @@
     <div class="card-header bg-light border-0 p-3">
         <ul class="nav nav-pills gap-2" id="estadoCuentaTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active rounded-pill px-4 fw-bold" id="activos-tab" data-bs-toggle="tab" data-bs-target="#tab-activos" type="button" role="tab">
-                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Maneos Activos Pendientes 
+                <button class="nav-link active rounded-pill px-4 fw-bold" id="activos-tab" data-bs-toggle="tab"
+                    data-bs-target="#tab-activos" type="button" role="tab">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Maneos Activos Pendientes
                     <span class="badge bg-warning text-dark rounded-pill ms-1">{{ maneos_activos|length }}</span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-pill px-4 fw-bold" id="historial-tab" data-bs-toggle="tab" data-bs-target="#tab-historial" type="button" role="tab">
+                <button class="nav-link rounded-pill px-4 fw-bold" id="historial-tab" data-bs-toggle="tab"
+                    data-bs-target="#tab-historial" type="button" role="tab">
                     <i class="fa-solid fa-list-check me-1"></i> Historial Resuelto (Cobros y Devoluciones)
                     <span class="badge bg-light text-dark border rounded-pill ms-1">{{ maneos_historial|length }}</span>
                 </button>
@@ -148,7 +161,9 @@
                             <td>
                                 <div class="fw-bold text-brand-black">{{ m.producto.nombre }}</div>
                                 {% if m.variante %}
-                                    <span class="badge bg-light text-dark border"><i class="fa-solid fa-code-branch me-1 text-brand-pink"></i>Subcat: {{ m.variante.nombre_variante }}</span>
+                                <span class="badge bg-light text-dark border"><i
+                                        class="fa-solid fa-code-branch me-1 text-brand-pink"></i>Subcat: {{
+                                    m.variante.nombre_variante }}</span>
                                 {% endif %}
                                 <small class="text-muted d-block">SKU: {{ m.producto.sku }}</small>
                             </td>
@@ -164,11 +179,17 @@
                             <td class="text-center pe-4">
                                 <div class="d-flex justify-content-center gap-2">
                                     <!-- Botón Facturar / Cobrar -->
-                                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalFacturar{{ m.id }}" title="Cobrar / Facturar este producto">
+                                    <button type="button"
+                                        class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm"
+                                        data-bs-toggle="modal" data-bs-target="#modalFacturar{{ m.id }}"
+                                        title="Cobrar / Facturar este producto">
                                         <i class="fa-solid fa-cash-register me-1"></i> Cobrar
                                     </button>
                                     <!-- Botón Devolver (Abre Modal Amigable) -->
-                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalDevolver{{ m.id }}" title="Devolver producto intacto al inventario">
+                                    <button type="button"
+                                        class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold shadow-sm"
+                                        data-bs-toggle="modal" data-bs-target="#modalDevolver{{ m.id }}"
+                                        title="Devolver producto intacto al inventario">
                                         <i class="fa-solid fa-rotate-left me-1"></i> Devolver
                                     </button>
                                 </div>
@@ -178,7 +199,8 @@
                         <tr>
                             <td colspan="6" class="text-center py-5 text-muted">
                                 <i class="fa-solid fa-circle-check fs-1 text-success mb-2 opacity-50"></i>
-                                <p class="mb-0 fw-semibold text-brand-black">Este local no tiene maneos pendientes por resolver.</p>
+                                <p class="mb-0 fw-semibold text-brand-black">Este local no tiene maneos pendientes por
+                                    resolver.</p>
                                 <small class="text-muted">Todo lo entregado ha sido liquidado o devuelto.</small>
                             </td>
                         </tr>
@@ -214,7 +236,7 @@
                             <td>
                                 <div class="fw-bold text-brand-black">{{ m.producto.nombre }}</div>
                                 {% if m.variante %}
-                                    <small class="text-muted">Subcat: {{ m.variante.nombre_variante }}</small>
+                                <small class="text-muted">Subcat: {{ m.variante.nombre_variante }}</small>
                                 {% endif %}
                             </td>
                             <td class="text-center fw-bold">{{ m.cantidad }}</td>
@@ -223,15 +245,15 @@
                             </td>
                             <td class="text-center pe-4">
                                 {% if m.estado == 'FACTURADO' %}
-                                    <span class="badge bg-success rounded-pill px-3 py-1 fw-bold">
-                                        <i class="fa-solid fa-cash-register me-1"></i>COBRADO
-                                    </span>
+                                <span class="badge bg-success rounded-pill px-3 py-1 fw-bold">
+                                    <i class="fa-solid fa-cash-register me-1"></i>COBRADO
+                                </span>
                                 {% elif m.estado == 'DEVUELTO' %}
-                                    <span class="badge bg-secondary rounded-pill px-3 py-1 fw-bold text-white">
-                                        <i class="fa-solid fa-rotate-left me-1"></i>DEVUELTO
-                                    </span>
+                                <span class="badge bg-secondary rounded-pill px-3 py-1 fw-bold text-white">
+                                    <i class="fa-solid fa-rotate-left me-1"></i>DEVUELTO
+                                </span>
                                 {% else %}
-                                    <span class="badge bg-light text-dark border">{{ m.estado }}</span>
+                                <span class="badge bg-light text-dark border">{{ m.estado }}</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -271,66 +293,72 @@
 
 <!-- Script para armar y enviar mensaje limpio por WhatsApp -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const btnWhatsApp = document.getElementById('btnCompartirWhatsApp');
-    const dataEl = document.getElementById('estadoCuentaData');
-    if (btnWhatsApp && dataEl) {
-        btnWhatsApp.addEventListener('click', function() {
-            const data = JSON.parse(dataEl.textContent);
-            let texto = `*ESTADO DE CUENTA - MARIPOCELL*\n`;
-            texto += `Cliente / Local: *${data.nombre}*\n`;
-            texto += `Fecha: ${new Date().toLocaleDateString('es-CO')}\n`;
-            texto += `--------------------------------\n`;
-
-            if (data.maneos && data.maneos.length > 0) {
-                texto += `*PRODUCTOS PENDIENTES EN MANEO:*\n`;
-                data.maneos.forEach(function(m) {
-                    const varText = m.variante ? ` (${m.variante})` : '';
-                    texto += `• ${m.cantidad}x ${m.producto}${varText} - $${Number(m.subtotal).toLocaleString('es-CO')}\n`;
-                });
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnWhatsApp = document.getElementById('btnCompartirWhatsApp');
+        const dataEl = document.getElementById('estadoCuentaData');
+        if (btnWhatsApp && dataEl) {
+            btnWhatsApp.addEventListener('click', function () {
+                const data = JSON.parse(dataEl.textContent);
+                let texto = `*ESTADO DE CUENTA - JR ACCESORIOS*\n`;
+                texto += `Cliente / Local: *${data.nombre}*\n`;
+                texto += `Fecha: ${new Date().toLocaleDateString('es-CO')}\n`;
                 texto += `--------------------------------\n`;
-                texto += `*TOTAL PENDIENTE POR PAGAR:* $${Number(data.saldo).toLocaleString('es-CO')}\n`;
-                texto += `Total Unidades: ${data.unidades}\n`;
-            } else {
-                texto += `Actualmente estás *AL DÍA* sin productos ni dinero pendiente.\n`;
-            }
 
-            texto += `\n¡Gracias por tu colaboración comercial!`;
+                if (data.maneos && data.maneos.length > 0) {
+                    texto += `*PRODUCTOS PENDIENTES EN MANEO:*\n`;
+                    data.maneos.forEach(function (m) {
+                        const varText = m.variante ? ` (${m.variante})` : '';
+                        texto += `• ${m.cantidad}x ${m.producto}${varText} - $${Number(m.subtotal).toLocaleString('es-CO')}\n`;
+                    });
+                    texto += `--------------------------------\n`;
+                    texto += `*TOTAL PENDIENTE POR PAGAR:* $${Number(data.saldo).toLocaleString('es-CO')}\n`;
+                    texto += `Total Unidades: ${data.unidades}\n`;
+                } else {
+                    texto += `Actualmente estás *AL DÍA* sin productos ni dinero pendiente.\n`;
+                }
 
-            const encoded = encodeURIComponent(texto);
-            let url = '';
-            if (data.telefono && data.telefono.trim().length >= 7) {
-                const cleanPhone = data.telefono.replace(/[^0-9]/g, '');
-                url = `https://wa.me/57${cleanPhone}?text=${encoded}`;
-            } else {
-                url = `https://api.whatsapp.com/send?text=${encoded}`;
-            }
-            window.open(url, '_blank');
-        });
-    }
-});
+                texto += `\n¡Gracias por tu colaboración comercial!`;
+
+                const encoded = encodeURIComponent(texto);
+                let url = '';
+                if (data.telefono && data.telefono.trim().length >= 7) {
+                    const cleanPhone = data.telefono.replace(/[^0-9]/g, '');
+                    url = `https://wa.me/57${cleanPhone}?text=${encoded}`;
+                } else {
+                    url = `https://api.whatsapp.com/send?text=${encoded}`;
+                }
+                window.open(url, '_blank');
+            });
+        }
+    });
 </script>
 
 <!-- Modales para Cobro / Facturación de Maneos Activos -->
 <!-- Modales para Cobro y Devolución de Maneos Activos -->
 {% for m in maneos_activos %}
 <!-- MODAL COBRAR / FACTURAR -->
-<div class="modal fade" id="modalFacturar{{ m.id }}" tabindex="-1" aria-labelledby="modalFacturarLabel{{ m.id }}" aria-hidden="true">
+<div class="modal fade" id="modalFacturar{{ m.id }}" tabindex="-1" aria-labelledby="modalFacturarLabel{{ m.id }}"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background-color: #ffffff; border-radius: 20px; overflow: hidden;">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 bg-white d-flex align-items-center justify-content-between">
+        <div class="modal-content border-0 shadow-lg"
+            style="background-color: #ffffff; border-radius: 20px; overflow: hidden;">
+            <div
+                class="modal-header border-0 pb-0 pt-4 px-4 bg-white d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 46px; height: 46px; background-color: #DCFCE7; color: #166534;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 46px; height: 46px; background-color: #DCFCE7; color: #166534;">
                         <i class="fa-solid fa-cash-register fs-5"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title fw-bolder text-brand-black m-0 font-orbitron" id="modalFacturarLabel{{ m.id }}" style="font-size: 1.15rem;">
+                        <h5 class="modal-title fw-bolder text-brand-black m-0 font-orbitron"
+                            id="modalFacturarLabel{{ m.id }}" style="font-size: 1.15rem;">
                             Cobrar / Facturar Maneo
                         </h5>
                         <p class="text-muted small mb-0">Registra el pago e ingresa el dinero a caja</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
             </div>
 
             <form method="POST" action="{{ url_for('maneos_bp.facturar', id=m.id) }}">
@@ -340,22 +368,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <div class="modal-body p-4">
                     <!-- Ficha del Producto y Local -->
-                    <div class="p-3 rounded-3 mb-3 border" style="background-color: #F8FAFC; border-color: #E2E8F0 !important;">
+                    <div class="p-3 rounded-3 mb-3 border"
+                        style="background-color: #F8FAFC; border-color: #E2E8F0 !important;">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <span class="badge px-2 py-1 rounded-pill mb-1" style="background-color: #EFF6FF; color: #1D4ED8; font-size: 0.72rem;">
+                                <span class="badge px-2 py-1 rounded-pill mb-1"
+                                    style="background-color: #EFF6FF; color: #1D4ED8; font-size: 0.72rem;">
                                     <i class="fa-solid fa-store me-1"></i> {{ cliente.nombre_o_razon_social }}
                                 </span>
                                 <h6 class="fw-bold text-brand-black m-0 fs-6">{{ m.producto.nombre }}</h6>
                                 {% if m.variante %}
-                                    <small class="text-muted d-block mt-1">
-                                        <i class="fa-solid fa-code-branch me-1 text-brand-pink"></i>Subcat: <strong>{{ m.variante.nombre_variante }}</strong>
-                                    </small>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fa-solid fa-code-branch me-1 text-brand-pink"></i>Subcat: <strong>{{
+                                        m.variante.nombre_variante }}</strong>
+                                </small>
                                 {% endif %}
                                 <small class="text-muted" style="font-size: 0.75rem;">SKU: {{ m.producto.sku }}</small>
                             </div>
                             <div class="text-end">
-                                <span class="badge bg-white border text-secondary px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                                <span class="badge bg-white border text-secondary px-2 py-1 rounded-pill"
+                                    style="font-size: 0.75rem;">
                                     Prestadas: <strong>{{ m.cantidad }}</strong> uds
                                 </span>
                             </div>
@@ -367,29 +399,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             <label class="form-label fw-bold text-brand-black small mb-1">
                                 Cantidad a Cobrar <span class="text-danger">*</span>
                             </label>
-                            <input type="number" 
-                                   name="cantidad_vendida" 
-                                   id="cobroCant{{ m.id }}" 
-                                   class="form-control border shadow-sm input-calc-cobro bg-white" 
-                                   data-id="{{ m.id }}"
-                                   value="{{ m.cantidad }}" 
-                                   min="1" 
-                                   max="{{ m.cantidad }}" 
-                                   required>
+                            <input type="number" name="cantidad_vendida" id="cobroCant{{ m.id }}"
+                                class="form-control border shadow-sm input-calc-cobro bg-white" data-id="{{ m.id }}"
+                                value="{{ m.cantidad }}" min="1" max="{{ m.cantidad }}" required>
                             <small class="text-muted" style="font-size: 0.72rem;">Máx: {{ m.cantidad }} uds</small>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold text-brand-black small mb-1">
                                 Precio Unitario ($) <span class="text-danger">*</span>
                             </label>
-                            <input type="number" 
-                                   step="any" 
-                                   name="precio_venta" 
-                                   id="cobroPrecio{{ m.id }}" 
-                                   class="form-control border shadow-sm input-calc-cobro bg-white" 
-                                   data-id="{{ m.id }}"
-                                   value="{{ '%.0f'|format(m.valor_unitario_calculado) }}" 
-                                   required>
+                            <input type="number" step="any" name="precio_venta" id="cobroPrecio{{ m.id }}"
+                                class="form-control border shadow-sm input-calc-cobro bg-white" data-id="{{ m.id }}"
+                                value="{{ '%.0f'|format(m.valor_unitario_calculado) }}" required>
                             <small class="text-muted" style="font-size: 0.72rem;">Precio acordado</small>
                         </div>
                     </div>
@@ -407,9 +428,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
 
                     <!-- Resumen del Cobro Dinámico -->
-                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%); border: 1px solid #BBF7D0;">
+                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center"
+                        style="background: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%); border: 1px solid #BBF7D0;">
                         <div>
-                            <small class="text-success fw-bold text-uppercase d-block" style="font-size: 0.7rem; letter-spacing: 0.5px;">Total a Ingresar</small>
+                            <small class="text-success fw-bold text-uppercase d-block"
+                                style="font-size: 0.7rem; letter-spacing: 0.5px;">Total a Ingresar</small>
                             <span class="text-muted small">Impacto inmediato en caja</span>
                         </div>
                         <h4 class="fw-bolder text-success m-0 font-orbitron" id="cobroTotalPreview{{ m.id }}">
@@ -419,7 +442,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <div class="modal-footer border-0 pt-0 pb-4 px-4 bg-white d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4 text-muted fw-bold border" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-light rounded-pill px-4 text-muted fw-bold border"
+                        data-bs-dismiss="modal">
                         Cancelar
                     </button>
                     <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
@@ -432,22 +456,28 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- MODAL DEVOLVER PRODUCTO INTACTO -->
-<div class="modal fade" id="modalDevolver{{ m.id }}" tabindex="-1" aria-labelledby="modalDevolverLabel{{ m.id }}" aria-hidden="true">
+<div class="modal fade" id="modalDevolver{{ m.id }}" tabindex="-1" aria-labelledby="modalDevolverLabel{{ m.id }}"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background-color: #ffffff; border-radius: 20px; overflow: hidden;">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 bg-white d-flex align-items-center justify-content-between">
+        <div class="modal-content border-0 shadow-lg"
+            style="background-color: #ffffff; border-radius: 20px; overflow: hidden;">
+            <div
+                class="modal-header border-0 pb-0 pt-4 px-4 bg-white d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 46px; height: 46px; background-color: #E0F2FE; color: #0284C7;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 46px; height: 46px; background-color: #E0F2FE; color: #0284C7;">
                         <i class="fa-solid fa-rotate-left fs-5"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title fw-bolder text-brand-black m-0 font-orbitron" id="modalDevolverLabel{{ m.id }}" style="font-size: 1.15rem;">
+                        <h5 class="modal-title fw-bolder text-brand-black m-0 font-orbitron"
+                            id="modalDevolverLabel{{ m.id }}" style="font-size: 1.15rem;">
                             Devolver Unidades al Inventario
                         </h5>
                         <p class="text-muted small mb-0">Reingresa el producto físico al stock de tienda</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
             </div>
 
             <form method="POST" action="{{ url_for('maneos_bp.devolver', id=m.id) }}">
@@ -457,22 +487,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <div class="modal-body p-4">
                     <!-- Ficha del Producto y Local -->
-                    <div class="p-3 rounded-3 mb-3 border" style="background-color: #F8FAFC; border-color: #E2E8F0 !important;">
+                    <div class="p-3 rounded-3 mb-3 border"
+                        style="background-color: #F8FAFC; border-color: #E2E8F0 !important;">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <span class="badge px-2 py-1 rounded-pill mb-1" style="background-color: #EFF6FF; color: #1D4ED8; font-size: 0.72rem;">
+                                <span class="badge px-2 py-1 rounded-pill mb-1"
+                                    style="background-color: #EFF6FF; color: #1D4ED8; font-size: 0.72rem;">
                                     <i class="fa-solid fa-store me-1"></i> {{ cliente.nombre_o_razon_social }}
                                 </span>
                                 <h6 class="fw-bold text-brand-black m-0 fs-6">{{ m.producto.nombre }}</h6>
                                 {% if m.variante %}
-                                    <small class="text-muted d-block mt-1">
-                                        <i class="fa-solid fa-code-branch me-1 text-brand-pink"></i>Subcat: <strong>{{ m.variante.nombre_variante }}</strong>
-                                    </small>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fa-solid fa-code-branch me-1 text-brand-pink"></i>Subcat: <strong>{{
+                                        m.variante.nombre_variante }}</strong>
+                                </small>
                                 {% endif %}
                                 <small class="text-muted" style="font-size: 0.75rem;">SKU: {{ m.producto.sku }}</small>
                             </div>
                             <div class="text-end">
-                                <span class="badge bg-white border text-primary px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                                <span class="badge bg-white border text-primary px-2 py-1 rounded-pill"
+                                    style="font-size: 0.75rem;">
                                     En Poder: <strong>{{ m.cantidad }}</strong> uds
                                 </span>
                             </div>
@@ -484,17 +518,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             ¿Cuántas unidades devuelve el local? <span class="text-danger">*</span>
                         </label>
                         <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden border">
-                            <input type="number" 
-                                   name="cantidad_devuelta" 
-                                   class="form-control border-0 text-center fw-bold fs-4 bg-white" 
-                                   min="1" 
-                                   max="{{ m.cantidad }}" 
-                                   value="{{ m.cantidad }}" 
-                                   required>
-                            <span class="input-group-text border-0 bg-light text-muted fw-bold">/ {{ m.cantidad }} uds</span>
+                            <input type="number" name="cantidad_devuelta"
+                                class="form-control border-0 text-center fw-bold fs-4 bg-white" min="1"
+                                max="{{ m.cantidad }}" value="{{ m.cantidad }}" required>
+                            <span class="input-group-text border-0 bg-light text-muted fw-bold">/ {{ m.cantidad }}
+                                uds</span>
                         </div>
                         <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
-                            Si se devuelven menos de {{ m.cantidad }} uds, las restantes continuarán pendientes en la cuenta del local.
+                            Si se devuelven menos de {{ m.cantidad }} uds, las restantes continuarán pendientes en la
+                            cuenta del local.
                         </small>
                     </div>
 
@@ -502,17 +534,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-circle-check text-success fs-5"></i>
                             <div class="small text-muted">
-                                Las unidades devueltas <strong>reingresarán inmediatamente al inventario</strong> y se descontarán de la deuda activa de este local.
+                                Las unidades devueltas <strong>reingresarán inmediatamente al inventario</strong> y se
+                                descontarán de la deuda activa de este local.
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer border-0 pt-0 pb-4 px-4 bg-white d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4 text-muted fw-bold border" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-light rounded-pill px-4 text-muted fw-bold border"
+                        data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background-color: #0284C7; border-color: #0284C7;">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"
+                        style="background-color: #0284C7; border-color: #0284C7;">
                         <i class="fa-solid fa-rotate-left me-1"></i> Confirmar Devolución
                     </button>
                 </div>
@@ -523,43 +558,51 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endfor %}
 
 <style>
-.modal-content {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border-radius: 20px !important;
-}
-.modal-header, .modal-footer {
-    background-color: #ffffff !important;
-}
-@media print {
-    .btn, nav, .card-header, #estadoCuentaTabs {
-        display: none !important;
+    .modal-content {
+        background-color: #ffffff !important;
+        color: #1C1615 !important;
+        border-radius: 20px !important;
     }
-    .card {
-        border: none !important;
-        box-shadow: none !important;
+
+    .modal-header,
+    .modal-footer {
+        background-color: #ffffff !important;
     }
-}
+
+    @media print {
+
+        .btn,
+        nav,
+        .card-header,
+        #estadoCuentaTabs {
+            display: none !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Calculadora dinámica en tiempo real para modales de cobro
-    document.querySelectorAll('.input-calc-cobro').forEach(function(input) {
-        input.addEventListener('input', function() {
-            const maneoId = this.dataset.id;
-            const cantEl = document.getElementById('cobroCant' + maneoId);
-            const precioEl = document.getElementById('cobroPrecio' + maneoId);
-            const previewEl = document.getElementById('cobroTotalPreview' + maneoId);
+    document.addEventListener('DOMContentLoaded', function () {
+        // Calculadora dinámica en tiempo real para modales de cobro
+        document.querySelectorAll('.input-calc-cobro').forEach(function (input) {
+            input.addEventListener('input', function () {
+                const maneoId = this.dataset.id;
+                const cantEl = document.getElementById('cobroCant' + maneoId);
+                const precioEl = document.getElementById('cobroPrecio' + maneoId);
+                const previewEl = document.getElementById('cobroTotalPreview' + maneoId);
 
-            if (cantEl && precioEl && previewEl) {
-                const cant = parseFloat(cantEl.value) || 0;
-                const precio = parseFloat(precioEl.value) || 0;
-                const total = Math.round(cant * precio);
-                previewEl.textContent = '$' + total.toLocaleString('es-CO');
-            }
+                if (cantEl && precioEl && previewEl) {
+                    const cant = parseFloat(cantEl.value) || 0;
+                    const precio = parseFloat(precioEl.value) || 0;
+                    const total = Math.round(cant * precio);
+                    previewEl.textContent = '$' + total.toLocaleString('es-CO');
+                }
+            });
         });
     });
-});
 </script>
 {% endblock %}

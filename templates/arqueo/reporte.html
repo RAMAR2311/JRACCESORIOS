@@ -50,15 +50,15 @@
         <div class="card bg-white p-4 p-md-5 border-0 shadow-sm rounded-4 printable-document">
             
             <!-- Encabezado del Documento Contable -->
-            <div class="text-center mb-4 pb-3 border-bottom" style="border-color: #E5E7EB !important;">
-                <h2 class="fw-bold mb-1" style="color: #111827; font-family: var(--font-display); letter-spacing: 1.5px;">
-                    <i class="fa-solid fa-calculator me-2" style="color: #D4AF37;"></i> Maripocell POS
+            <div class="text-center mb-4 pb-3 border-bottom" style="border-color: #EFEBE9 !important;">
+                <h2 class="fw-bold mb-1 text-uppercase" style="color: #2C1E1A; font-family: var(--font-display); letter-spacing: 1.5px;">
+                    <i class="fa-solid fa-calculator me-2" style="color: #8D4925;"></i> JR ACCESORIOS POS
                 </h2>
-                <h5 class="text-muted fw-semibold" style="font-family: var(--font-heading); font-size: 1rem; color: #4B5563 !important;">CONCILIACIÓN Y AUDITORÍA DE CIERRE DE CAJA</h5>
+                <h5 class="fw-semibold section-subtitle" style="font-size: 0.85rem; color: #5D4037 !important;">CONCILIACIÓN Y AUDITORÍA DE CIERRE DE CAJA</h5>
                 <p class="mb-0 text-secondary small" style="font-family: var(--font-body);">
-                    Período: <strong>{{ fecha_inicio }}</strong> al <strong>{{ fecha_fin }}</strong> 
+                    Período: <strong class="font-mono">{{ fecha_inicio }}</strong> al <strong class="font-mono">{{ fecha_fin }}</strong> 
                     <span class="mx-2">•</span> 
-                    Generado el: <strong>{{ fecha_generacion }}</strong>
+                    Generado el: <strong class="font-mono">{{ fecha_generacion }}</strong>
                     {% if current_user.rol != 'admin' %}
                         <span class="mx-2">•</span>
                         Usuario: <strong>{{ current_user.nombre }}</strong>
@@ -67,60 +67,60 @@
             </div>
 
             <!-- Resumen Consolidado de Totales -->
-            <div class="p-3 mb-4 rounded-4" style="background-color: #F8F9FA; border: 1px solid #E5E7EB;">
-                <h6 class="fw-bold text-uppercase mb-3 small" style="color: #0A0A0A; font-family: var(--font-heading);">
-                    <i class="fa-solid fa-chart-pie me-2" style="color: #6B1788;"></i>Resumen General del Período
+            <div class="p-3 mb-4 rounded-4" style="background-color: #FFFFFF; border: 1px solid #EFEBE9;">
+                <h6 class="fw-bold text-uppercase mb-3 small" style="color: #2C1E1A; letter-spacing: 0.15em; font-family: var(--font-heading);">
+                    <i class="fa-solid fa-chart-pie me-2" style="color: #8D4925;"></i>Resumen General del Período
                 </h6>
                 <div class="row g-3">
                     <div class="col-6 col-md-3">
-                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #E5E7EB !important;">
+                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #EFEBE9 !important;">
                             <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.72rem; font-family: var(--font-heading);">Base Apertura</small>
-                            <h3 class="mb-0 fw-bold" style="color: #0A0A0A; font-family: 'Montserrat', sans-serif; font-size: 1.45rem;">${{ resumen.total_base|cop }}</h3>
+                            <h3 class="mb-0 fw-bold font-mono" style="color: #1C1615; font-size: 1.4rem;">${{ resumen.total_base|cop }}</h3>
                         </div>
                     </div>
 
                     <div class="col-6 col-md-3">
-                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #E5E7EB !important;">
+                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #EFEBE9 !important;">
                             <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.72rem; font-family: var(--font-heading);">Ventas Efectivo</small>
-                            <h3 class="mb-0 fw-bold text-success" style="font-family: 'Montserrat', sans-serif; font-size: 1.45rem;">${{ resumen.total_efectivo|cop }}</h3>
+                            <h3 class="mb-0 fw-bold font-mono" style="color: #8D4925; font-size: 1.4rem;">${{ resumen.total_efectivo|cop }}</h3>
                         </div>
                     </div>
 
                     <div class="col-6 col-md-3">
-                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #E5E7EB !important;">
+                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #EFEBE9 !important;">
                             <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.72rem; font-family: var(--font-heading);">Dinero Digital</small>
-                            <h3 class="mb-0 fw-bold" style="color: #6B1788; font-family: 'Montserrat', sans-serif; font-size: 1.45rem;">${{ resumen.total_digital|cop }}</h3>
+                            <h3 class="mb-0 fw-bold font-mono" style="color: #6F4E37; font-size: 1.4rem;">${{ resumen.total_digital|cop }}</h3>
                         </div>
                     </div>
 
                     <div class="col-6 col-md-3">
-                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #E5E7EB !important;">
+                        <div class="card p-3 border rounded-3 bg-white text-center h-100 shadow-sm" style="border-color: #EFEBE9 !important;">
                             <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.72rem; font-family: var(--font-heading);">Gastos en Efectivo</small>
-                            <h3 class="mb-0 fw-bold" style="color: #DC2626; font-family: 'Montserrat', sans-serif; font-size: 1.45rem;">-${{ resumen.total_gastos|cop }}</h3>
+                            <h3 class="mb-0 fw-bold font-mono" style="color: #B91C1C; font-size: 1.4rem;">-${{ resumen.total_gastos|cop }}</h3>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-4">
-                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #FFFFFF; border: 1.5px solid #BBF7D0 !important;">
-                            <small class="text-success fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; font-family: var(--font-heading);">Efectivo Físico Contado</small>
-                            <h2 class="mb-0 fw-bolder text-success" style="font-family: 'Montserrat', sans-serif; font-size: 1.75rem;">${{ resumen.total_fisico|cop }}</h2>
+                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #FFFFFF; border: 1.5px solid #8D4925 !important;">
+                            <small class="fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; color: #5D4037; font-family: var(--font-heading);">Efectivo Físico Contado</small>
+                            <h2 class="mb-0 fw-bolder font-mono" style="color: #8D4925; font-size: 1.75rem;">${{ resumen.total_fisico|cop }}</h2>
                             <small class="text-muted mt-1" style="font-size: 0.7rem; font-family: var(--font-body);">Dinero real recibido en cajón</small>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-4">
-                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #FFFFFF; border: 1.5px solid #E5E7EB !important;">
+                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #FFFFFF; border: 1.5px solid #EFEBE9 !important;">
                             <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; font-family: var(--font-heading);">Efectivo Teórico Esperado</small>
-                            <h2 class="mb-0 fw-bolder" style="color: #0A0A0A; font-family: 'Montserrat', sans-serif; font-size: 1.75rem;">${{ resumen.efectivo_esperado|cop }}</h2>
+                            <h2 class="mb-0 fw-bolder font-mono" style="color: #2C1E1A; font-size: 1.75rem;">${{ resumen.efectivo_esperado|cop }}</h2>
                             <small class="text-muted mt-1" style="font-size: 0.7rem; font-family: var(--font-body);">(Base + Vtas Efectivo) - Gastos</small>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-4">
                         {% if resumen.total_diferencia != 0 %}
-                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #FEF2F2; border: 2px solid #EF4444 !important;">
-                            <small class="fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; color: #DC2626; font-family: var(--font-heading);">Diferencia Acumulada</small>
-                            <h2 class="mb-0 fw-bolder" style="color: #DC2626; font-family: 'Montserrat', sans-serif; font-size: 1.85rem;">
+                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #FFFFFF; border: 2px solid #B91C1C !important;">
+                            <small class="fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; color: #B91C1C; font-family: var(--font-heading);">Diferencia Acumulada</small>
+                            <h2 class="mb-0 fw-bolder font-mono" style="color: #B91C1C; font-size: 1.85rem;">
                                 {{ '+' if resumen.total_diferencia > 0 else '' }}${{ resumen.total_diferencia|cop }}
                             </h2>
                             <small class="mt-1 fw-bold" style="font-size: 0.75rem; color: #B91C1C; font-family: var(--font-body);">
@@ -132,12 +132,12 @@
                             </small>
                         </div>
                         {% else %}
-                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #F0FDF4; border: 2px solid #10B981 !important;">
-                            <small class="text-success fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; font-family: var(--font-heading);">Diferencia Acumulada</small>
-                            <h2 class="mb-0 fw-bolder text-success" style="font-family: 'Montserrat', sans-serif; font-size: 1.85rem;">
+                        <div class="card p-3 border rounded-3 text-center h-100 shadow-sm" style="background-color: #FFFFFF; border: 2px solid #8D4925 !important;">
+                            <small class="fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; color: #5D4037; font-family: var(--font-heading);">Diferencia Acumulada</small>
+                            <h2 class="mb-0 fw-bolder font-mono" style="color: #8D4925; font-size: 1.85rem;">
                                 $0
                             </h2>
-                            <small class="mt-1 fw-bold text-success" style="font-size: 0.75rem; font-family: var(--font-body);">
+                            <small class="mt-1 fw-bold" style="font-size: 0.75rem; color: #8D4925; font-family: var(--font-body);">
                                 <i class="fa-solid fa-circle-check me-1"></i>¡Balance Correcto - Caja Cuadrada!
                             </small>
                         </div>
@@ -147,12 +147,12 @@
             </div>
 
             <!-- Tabla Desglosada por Arqueos Realizados -->
-            <h6 class="fw-bold text-brand-black text-uppercase mb-3 small border-bottom pb-2">
-                <i class="fa-solid fa-list-check text-brand-blue me-2"></i>Historial de Cierres de Caja en el Período
+            <h6 class="fw-bold text-brand-black text-uppercase mb-3 small border-bottom pb-2" style="border-color: #EFEBE9 !important;">
+                <i class="fa-solid fa-list-check me-2" style="color: #8D4925;"></i>Historial de Cierres de Caja en el Período
             </h6>
             <div class="table-responsive mb-4">
                 <table class="table table-bordered table-sm align-middle mb-0" style="font-size: 0.85rem;">
-                    <thead class="table-light text-center text-uppercase small text-muted">
+                    <thead class="text-center text-uppercase small" style="color: #5D4037;">
                         <tr>
                             <th>Fecha</th>
                             <th>Cajero(a)</th>
@@ -160,7 +160,7 @@
                             <th class="text-end">Vta Efectivo</th>
                             <th class="text-end">Vta Digital</th>
                             <th class="text-end">Gastos</th>
-                            <th class="text-end bg-light">Físico Real</th>
+                            <th class="text-end">Físico Real</th>
                             <th class="text-center">Diferencia</th>
                             <th>Observaciones</th>
                         </tr>
@@ -168,13 +168,13 @@
                     <tbody>
                         {% for a in arqueos %}
                         <tr>
-                            <td class="text-center fw-semibold text-dark">{{ a.fecha_arqueo }}</td>
+                            <td class="text-center fw-semibold text-dark font-mono">{{ a.fecha_arqueo }}</td>
                             <td class="fw-bold">{{ a.cajero.nombre if a.cajero else 'Cajero' }}</td>
-                            <td class="text-end">${{ a.base_inicial|cop }}</td>
-                            <td class="text-end text-success fw-semibold">${{ a.total_efectivo_sistema|cop }}</td>
-                            <td class="text-end text-primary fw-semibold">${{ a.total_transferencia_sistema|cop }}</td>
-                            <td class="text-end text-danger">${{ a.gastos_del_dia|cop }}</td>
-                            <td class="text-end fw-bold bg-light">${{ (a.efectivo_fisico_contado or 0)|cop }}</td>
+                            <td class="text-end font-mono">${{ a.base_inicial|cop }}</td>
+                            <td class="text-end fw-semibold font-mono" style="color: #1C1615;">${{ a.total_efectivo_sistema|cop }}</td>
+                            <td class="text-end fw-semibold font-mono" style="color: #5D4037;">${{ a.total_transferencia_sistema|cop }}</td>
+                            <td class="text-end text-danger font-mono">${{ a.gastos_del_dia|cop }}</td>
+                            <td class="text-end fw-bold font-mono" style="color: #8D4925 !important;">${{ (a.efectivo_fisico_contado or 0)|cop }}</td>
                             <td class="text-center">
                                 {% set dif = a.diferencia if a.diferencia is not none else ((a.efectivo_fisico_contado or 0) - a.efectivo_esperado) %}
                                 {% if dif == 0 %}
@@ -278,7 +278,7 @@
     <div id="seccionTicket80mm" class="d-none">
         <div class="ticket-pos">
             <div class="text-center">
-                <h4 class="fw-bold mb-0">MARIPOCELL POS</h4>
+                <h4 class="fw-bold mb-0">JR ACCESORIOS POS</h4>
                 <small class="d-block">CIERRE DE CAJA DIARIO</small>
                 <small class="d-block">Fecha: {{ fecha_inicio }}</small>
                 <small class="d-block text-muted">Generado: {{ fecha_generacion }}</small>

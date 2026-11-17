@@ -4,11 +4,11 @@
 <div class="row justify-content-center">
     <!-- Navbar y Botones de Opción -->
     <div class="col-12 d-print-none mb-4">
-         <div class="card card-custom p-4 border-0 shadow-sm d-flex justify-content-between align-items-center flex-row" style="background-color: #FFFFFF; border: 1px solid #E5E7EB !important;">
-             <h4 class="fw-bold m-0" style="color: #111827; font-family: var(--font-heading);">
-                 <i class="fa-solid fa-scale-balanced me-2" style="color: #D4AF37;"></i> Balance Financiero Operativo
+         <div class="card card-custom p-4 d-flex justify-content-between align-items-center flex-row" style="background-color: #FFFFFF; border: 1px solid #EFEBE9 !important;">
+             <h4 class="fw-bold m-0 text-uppercase" style="color: #2C1E1A; font-family: var(--font-heading);">
+                 <i class="fa-solid fa-scale-balanced me-2" style="color: #8D4925;"></i> Balance Financiero Operativo
              </h4>
-             <button onclick="window.print()" class="btn btn-primary rounded-pill fw-bold px-4 shadow-sm" style="background: var(--brand-gradient) !important; color: #111827 !important; border: 1px solid #D4AF37; letter-spacing: 0.5px; font-family: var(--font-heading);">
+             <button onclick="window.print()" class="btn btn-primary rounded-pill fw-bold px-4 shadow-sm" style="background: var(--brand-gradient) !important; color: #FFFFFF !important; border: 1px solid #8D4925; letter-spacing: 0.5px; font-family: var(--font-heading);">
                  <i class="fa-solid fa-file-pdf me-1"></i> Imprimir Reporte Oficial
              </button>
          </div>
@@ -16,26 +16,26 @@
 
     <!-- Contenido del Reporte -->
     <div class="col-12 col-xl-10 report-container">
-        <div class="card p-4 p-md-5 border-0 shadow-sm rounded-4 printable-document" style="background-color: #FFFFFF; border: 1px solid #E5E7EB !important; color: #111827;">
+        <div class="card p-4 p-md-5 rounded-4 printable-document" style="background-color: #FFFFFF; border: 1px solid #EFEBE9 !important; color: #1C1615;">
             
-            <!-- Cabecera Oficial Maripocell -->
-            <div class="text-center mb-5 pb-4 border-bottom d-print-block" style="border-color: #E5E7EB !important;">
-                <div class="display-6 fw-bold mb-1" style="font-family: var(--font-display); letter-spacing: 1.5px;">
-                    <span style="color: #111827; font-weight: 900;">Maripocell</span>
+            <!-- Cabecera Oficial JR ACCESORIOS -->
+            <div class="text-center mb-5 pb-4 border-bottom d-print-block" style="border-color: #EFEBE9 !important;">
+                <div class="display-6 fw-bold mb-1 text-uppercase" style="font-family: var(--font-display); letter-spacing: 1.5px;">
+                    <span style="color: #2C1E1A; font-weight: 800;">JR ACCESORIOS</span>
                 </div>
-                <div class="small fw-semibold text-uppercase mb-2" style="letter-spacing: 1.5px; font-family: var(--font-heading); color: #926C09;">
-                    MARIPOCELL - ACCESORIOS & TECNOLOGÍA • POS & GESTIÓN COMERCIAL
+                <div class="small fw-semibold text-uppercase mb-2" style="letter-spacing: 0.20em; font-family: var(--font-heading); color: #8D4925;">
+                    JR ACCESORIOS - ACCESORIOS & TECNOLOGÍA • POS & GESTIÓN COMERCIAL
                 </div>
-                <h4 class="text-dark fw-bold mb-2" style="font-family: var(--font-heading);">ESTADO DE RESULTADOS CONTABLE</h4>
+                <h4 class="fw-bold mb-2" style="color: #2C1E1A; font-family: var(--font-heading);">ESTADO DE RESULTADOS CONTABLE</h4>
                 <p class="mb-0 text-muted small" style="font-family: var(--font-body);">
-                    Período Auditado: <strong class="text-dark">{{ fecha_inicio }}</strong> hasta <strong class="text-dark">{{ fecha_fin }}</strong><br>
-                    Generado por sistema el: <strong class="text-dark">{{ fecha_generacion }}</strong>
+                    Período Auditado: <strong class="text-dark font-mono">{{ fecha_inicio }}</strong> hasta <strong class="text-dark font-mono">{{ fecha_fin }}</strong><br>
+                    Generado por sistema el: <strong class="text-dark font-mono">{{ fecha_generacion }}</strong>
                 </p>
             </div>
 
             <!-- Sección 1: Ingresos -->
-            <h5 class="fw-bold mb-3 border-bottom pb-2 text-success" style="border-color: #E0E0E0 !important; font-family: var(--font-heading);">
-                <i class="fa-solid fa-arrow-trend-up me-2"></i> 1. INGRESOS EN BRUTO
+            <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: #2C1E1A; border-color: #EFEBE9 !important; font-family: var(--font-heading);">
+                <i class="fa-solid fa-arrow-trend-up me-2" style="color: #8D4925;"></i> 1. INGRESOS EN BRUTO
             </h5>
             <div class="table-responsive mb-5">
                 <table class="table table-financial mb-0">
@@ -48,23 +48,23 @@
                     <tbody>
                         <tr>
                             <td class="text-dark fw-medium">Ventas Validadas en Efectivo</td>
-                            <td class="text-end text-dark fw-bold">${{ (datos.ventas_efectivo)|cop }}</td>
+                            <td class="text-end text-dark fw-bold font-mono">${{ (datos.ventas_efectivo)|cop }}</td>
                         </tr>
                         <tr>
                             <td class="text-dark fw-medium">Ventas por Transferencias Informadas</td>
-                            <td class="text-end text-dark fw-bold">${{ (datos.ventas_transferencia)|cop }}</td>
+                            <td class="text-end text-dark fw-bold font-mono">${{ (datos.ventas_transferencia)|cop }}</td>
                         </tr>
                         <tr class="table-summary-row">
-                            <td class="p-3 fw-bold text-dark" style="font-family: var(--font-heading);">Σ TOTAL INGRESOS (VENTAS)</td>
-                            <td class="text-end p-3 fw-bold fs-5 text-success" style="font-family: var(--font-heading);">${{ (datos.total_ingresos)|cop }}</td>
+                            <td class="p-3 fw-bold" style="color: #2C1E1A; font-family: var(--font-heading);">Σ TOTAL INGRESOS (VENTAS)</td>
+                            <td class="text-end p-3 fw-bold fs-5 font-mono" style="color: #8D4925 !important;">${{ (datos.total_ingresos)|cop }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
             <!-- Sección 2: Costos y Gastos -->
-            <h5 class="fw-bold mb-3 border-bottom pb-2 text-danger" style="border-color: #E0E0E0 !important; font-family: var(--font-heading);">
-                <i class="fa-solid fa-arrow-trend-down me-2"></i> 2. COSTOS DE MERCANCÍA Y GASTOS
+            <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: #2C1E1A; border-color: #EFEBE9 !important; font-family: var(--font-heading);">
+                <i class="fa-solid fa-arrow-trend-down me-2 text-danger"></i> 2. COSTOS DE MERCANCÍA Y GASTOS
             </h5>
             <div class="table-responsive mb-5">
                 <table class="table table-financial mb-0">
@@ -77,41 +77,41 @@
                     <tbody>
                         <tr>
                             <td class="text-dark fw-medium">Costos Directos del Producto Vendido (COGS)</td>
-                            <td class="text-end fw-bold text-danger">-${{ (datos.costos_directos)|cop }}</td>
+                            <td class="text-end fw-bold text-danger font-mono">-${{ (datos.costos_directos)|cop }}</td>
                         </tr>
                         <tr>
                             <td class="text-dark fw-medium">Gastos Diarios / Operacionales (Salidas de Caja)</td>
-                            <td class="text-end fw-bold text-danger">-${{ (datos.gastos_operacionales)|cop }}</td>
+                            <td class="text-end fw-bold text-danger font-mono">-${{ (datos.gastos_operacionales)|cop }}</td>
                         </tr>
                         <tr>
                             <td class="text-dark fw-medium">Costos Indirectos Permanentes</td>
-                            <td class="text-end fw-bold text-danger">-${{ (datos.costos_indirectos)|cop }}</td>
+                            <td class="text-end fw-bold text-danger font-mono">-${{ (datos.costos_indirectos)|cop }}</td>
                         </tr>
                         <tr class="table-summary-row">
-                            <td class="p-3 fw-bold text-dark" style="font-family: var(--font-heading);">Σ TOTAL SALIDAS Y DEDUCCIONES</td>
-                            <td class="text-end p-3 fw-bold fs-5 text-danger" style="font-family: var(--font-heading);">-${{ (datos.total_salidas)|cop }}</td>
+                            <td class="p-3 fw-bold" style="color: #2C1E1A; font-family: var(--font-heading);">Σ TOTAL SALIDAS Y DEDUCCIONES</td>
+                            <td class="text-end p-3 fw-bold fs-5 text-danger font-mono">-${{ (datos.total_salidas)|cop }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
             <!-- Sección 3: Balance Neto de Resultados -->
-            <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark" style="border-color: #E0E0E0 !important; font-family: var(--font-heading);">
-                <i class="fa-solid fa-sack-dollar me-2" style="color: #E53935;"></i> 3. RENDIMIENTO NETO PERIÓDICO
+            <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: #2C1E1A; border-color: #EFEBE9 !important; font-family: var(--font-heading);">
+                <i class="fa-solid fa-sack-dollar me-2" style="color: #8D4925;"></i> 3. RENDIMIENTO NETO PERIÓDICO
             </h5>
             {% set balance_positivo = datos.balance_neto >= 0 %}
-            <div class="card p-4 text-center border-0 my-4 rounded-4 {{ 'balance-card-positive' if balance_positivo else 'balance-card-negative' }}">
-                <small class="text-uppercase fw-bold mb-1 {{ 'text-success' if balance_positivo else 'text-danger' }}" style="letter-spacing: 1px; font-family: var(--font-heading);">
+            <div class="card p-4 text-center my-4 rounded-4 {{ 'balance-card-positive' if balance_positivo else 'balance-card-negative' }}">
+                <small class="text-uppercase fw-bold mb-1" style="color: {{ '#8D4925' if balance_positivo else '#B91C1C' }}; letter-spacing: 0.20em; font-family: var(--font-heading);">
                     {% if balance_positivo %}Ganancia Neta / Utilidad del Ejercicio{% else %}Pérdida Neta Registrada{% endif %}
                 </small>
-                <h1 class="fw-bolder mb-0 {{ 'text-positive' if balance_positivo else 'text-negative' }}" style="font-size: 3rem; font-family: var(--font-heading);">
+                <h1 class="fw-bolder mb-0 font-mono {{ 'text-positive' if balance_positivo else 'text-negative' }}" style="font-size: 3rem;">
                     ${{ (datos.balance_neto)|cop }}
                 </h1>
             </div>
 
             <!-- Sección 4: Bodega y Cartera Mayorista (B2B) -->
-            <h5 class="fw-bold mb-3 border-bottom pb-2 mt-5" style="color: #000000; border-color: #E0E0E0 !important; font-family: var(--font-heading);">
-                <i class="fa-solid fa-boxes-stacked me-2" style="color: #E53935;"></i> 4. BODEGA Y CARTERA MAYORISTA (B2B)
+            <h5 class="fw-bold mb-3 border-bottom pb-2 mt-5" style="color: #2C1E1A; border-color: #EFEBE9 !important; font-family: var(--font-heading);">
+                <i class="fa-solid fa-boxes-stacked me-2" style="color: #8D4925;"></i> 4. BODEGA Y CARTERA MAYORISTA (B2B)
             </h5>
             <div class="table-responsive mb-4">
                 <table class="table table-financial mb-0">
@@ -124,15 +124,15 @@
                     <tbody>
                         <tr>
                             <td class="text-dark fw-medium">Total Facturado de Contado en Bodega (Ingreso Inmediato)</td>
-                            <td class="text-end fw-bold text-success">${{ (datos.bodega_contado)|cop }}</td>
+                            <td class="text-end fw-bold font-mono" style="color: #1C1615;">${{ (datos.bodega_contado)|cop }}</td>
                         </tr>
                         <tr>
                             <td class="text-dark fw-medium">Total Recaudado por Abonos en Bodega (Recuperación de Cartera)</td>
-                            <td class="text-end fw-bold" style="color: #E53935;">${{ (datos.bodega_abonos)|cop }}</td>
+                            <td class="text-end fw-bold font-mono" style="color: #8D4925;">${{ (datos.bodega_abonos)|cop }}</td>
                         </tr>
                         <tr class="table-summary-row">
-                            <td class="p-3 fw-bold text-dark" style="font-family: var(--font-heading);">Σ CARTERA TOTAL ABIERTA EN LA CALLE (POR COBRAR)</td>
-                            <td class="text-end p-3 fw-bold fs-5 text-warning" style="color: #d97706 !important; font-family: var(--font-heading);">${{ (datos.bodega_cartera_pendiente)|cop }}</td>
+                            <td class="p-3 fw-bold" style="color: #2C1E1A; font-family: var(--font-heading);">Σ CARTERA TOTAL ABIERTA EN LA CALLE (POR COBRAR)</td>
+                            <td class="text-end p-3 fw-bold fs-5 font-mono" style="color: #8D4925 !important;">${{ (datos.bodega_cartera_pendiente)|cop }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -144,7 +144,7 @@
                     <hr class="w-100 border-dark border-1 opacity-100">
                     <p class="mb-0 fw-bold" style="font-family: var(--font-heading);">Verificado y Autorizado</p>
                     <p class="text-muted small mb-0">{{ current_user.nombre }}</p>
-                    <p class="text-muted" style="font-size: 0.75rem;">Administración General • MARIPOCELL</p>
+                    <p class="text-muted" style="font-size: 0.75rem;">Administración General • JR ACCESORIOS</p>
                 </div>
             </div>
 
@@ -153,24 +153,24 @@
 </div>
 
 <style>
-/* Tarjetas de Rendimiento Financiero */
+/* Tarjetas de Rendimiento Financiero - White Canvas */
 .balance-card-positive {
-    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%) !important;
-    border: 2px solid #10b981 !important;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
+    background: #FFFFFF !important;
+    border: 2px solid #8D4925 !important;
+    box-shadow: 0 4px 18px rgba(111, 78, 55, 0.08) !important;
 }
 .balance-card-negative {
-    background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%) !important;
-    border: 2px solid #ef4444 !important;
-    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.12);
+    background: #FFFFFF !important;
+    border: 2px solid #B91C1C !important;
+    box-shadow: 0 4px 18px rgba(185, 28, 28, 0.08) !important;
 }
 .text-positive {
-    color: #059669 !important;
-    font-weight: 900;
+    color: #8D4925 !important;
+    font-weight: 800;
 }
 .text-negative {
-    color: #dc2626 !important;
-    font-weight: 900;
+    color: #B91C1C !important;
+    font-weight: 800;
 }
 
 /* Estilos específicos de tablas financieras */
@@ -178,46 +178,43 @@
     background-color: #FFFFFF !important;
     border-radius: 12px;
     overflow: hidden;
-    color: #000000;
-    border: 1px solid #E0E0E0;
+    color: #1C1615;
+    border: 1px solid #EFEBE9;
     font-family: var(--font-body);
 }
 
 .table-financial thead th {
-    background-color: #F9FAFB !important;
-    color: #111827 !important;
-    border-bottom: 2px solid #D4AF37 !important;
+    background-color: #FFFFFF !important;
+    color: #5D4037 !important;
+    border-bottom: 2px solid #8D4925 !important;
     text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.8px;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
     padding: 0.9rem 1rem;
     font-family: var(--font-heading);
-    font-weight: 800;
+    font-weight: 700;
 }
 
-.table-financial tbody tr:nth-of-type(odd) td {
-    background-color: #FFFFFF !important;
-}
-
+.table-financial tbody tr:nth-of-type(odd) td,
 .table-financial tbody tr:nth-of-type(even) td {
-    background-color: #FAFAFA !important;
+    background-color: #FFFFFF !important;
 }
 
 .table-financial tbody td {
     padding: 0.9rem 1rem;
-    border-bottom: 1px solid #EEEEEE !important;
-    color: #111827 !important;
+    border-bottom: 1px solid #F7F5F2 !important;
+    color: #1C1615 !important;
     font-family: var(--font-body);
 }
 
 .table-financial tbody tr:hover td {
-    background-color: #F5F5F5 !important;
+    background-color: rgba(196, 164, 130, 0.08) !important;
 }
 
 .table-summary-row td {
-    background-color: #F9FAFB !important;
-    border-top: 2px solid #D4AF37 !important;
-    border-bottom: 2px solid #D4AF37 !important;
+    background-color: #FFFFFF !important;
+    border-top: 2px solid #8D4925 !important;
+    border-bottom: 2px solid #8D4925 !important;
     font-weight: 700;
 }
 
@@ -260,28 +257,26 @@
         color: #000000 !important;
     }
     .table-financial thead th {
-        background-color: #F9FAFB !important;
-        color: #000000 !important;
-        border-bottom: 2px solid #D4AF37 !important;
-    }
-    .table-financial tbody tr:nth-of-type(odd) td {
         background-color: #FFFFFF !important;
+        color: #5D4037 !important;
+        border-bottom: 2px solid #8D4925 !important;
     }
+    .table-financial tbody tr:nth-of-type(odd) td,
     .table-financial tbody tr:nth-of-type(even) td {
-        background-color: #F8F8F8 !important;
+        background-color: #FFFFFF !important;
     }
     .table-financial tbody td {
         color: #000000 !important;
-        border-bottom: 1px solid #DDDDDD !important;
+        border-bottom: 1px solid #EFEBE9 !important;
     }
     .table-summary-row td {
-        background-color: #F5F5F5 !important;
+        background-color: #FFFFFF !important;
         color: #000000 !important;
     }
 
-    .text-success { color: #0f5132 !important; }
-    .text-danger { color: #842029 !important; }
-    .text-secondary { color: #555555 !important; }
+    .text-success { color: #1C1615 !important; }
+    .text-danger { color: #B91C1C !important; }
+    .text-secondary { color: #5D4037 !important; }
 
     * {
         -webkit-print-color-adjust: exact !important;

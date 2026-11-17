@@ -6,12 +6,14 @@
 
 <!-- Título de Pantalla Renombrado (Requerimento) -->
 <div class="d-flex align-items-center justify-content-between mb-4">
-    <h2 class="fw-bold text-brand-black m-0"><i class="fa-solid fa-cash-register me-2" style="color: var(--brand-pink);"></i>Caja Central</h2>
+    <h2 class="fw-bold text-brand-black m-0"><i class="fa-solid fa-cash-register me-2"
+            style="color: var(--brand-pink);"></i>Caja Central</h2>
     <div class="d-none d-md-flex align-items-center gap-2">
         <span class="badge bg-white text-muted border shadow-sm px-3 py-2 rounded-pill small">
-            <kbd class="bg-light text-dark border px-1">F2</kbd> Buscador &nbsp;|&nbsp; 
-            <kbd class="bg-light text-dark border px-1">↑</kbd><kbd class="bg-light text-dark border px-1">↓</kbd> Navegar &nbsp;|&nbsp; 
-            <kbd class="bg-light text-dark border px-1">Enter</kbd> Agregar &nbsp;|&nbsp; 
+            <kbd class="bg-light text-dark border px-1">F2</kbd> Buscador &nbsp;|&nbsp;
+            <kbd class="bg-light text-dark border px-1">↑</kbd><kbd class="bg-light text-dark border px-1">↓</kbd>
+            Navegar &nbsp;|&nbsp;
+            <kbd class="bg-light text-dark border px-1">Enter</kbd> Agregar &nbsp;|&nbsp;
             <kbd class="bg-light text-dark border px-1">F4</kbd> Cobro
         </span>
     </div>
@@ -20,28 +22,33 @@
 <div class="row">
     <!-- UI Escáner y Carrito -->
     <div class="col-lg-8 mb-4">
-        
+
         <!-- Panel de Escaneo -->
         <div class="card card-custom p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <label class="form-label fw-bold text-brand-black mb-0">Buscar o Escanear Código</label>
-                <small class="text-muted d-md-none"><kbd class="bg-light text-secondary border px-1">F2</kbd> Buscar</small>
+                <small class="text-muted d-md-none"><kbd class="bg-light text-secondary border px-1">F2</kbd>
+                    Buscar</small>
             </div>
             <div class="d-flex gap-2 position-relative">
                 <div class="input-group input-group-lg shadow-sm border-0 rounded-3 overflow-hidden flex-grow-1">
-                    <span class="input-group-text bg-white border-0"><i class="fa-solid fa-barcode text-muted"></i></span>
-                    <input type="text" class="form-control border-0" id="sku_input" placeholder="Buscar por nombre, SKU o subcategoría..." autocomplete="off" autofocus>
+                    <span class="input-group-text bg-white border-0"><i
+                            class="fa-solid fa-barcode text-muted"></i></span>
+                    <input type="text" class="form-control border-0" id="sku_input"
+                        placeholder="Buscar por nombre, SKU o subcategoría..." autocomplete="off" autofocus>
                     <!-- Botón Secundario Rosa Pastel -->
                     <button class="btn btn-pink px-4" type="button" id="btn_add_product">
                         <i class="fa-solid fa-check ms-1"></i> Agregar
                     </button>
                 </div>
-                <button class="btn btn-outline-primary rounded-3 px-3 shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#modalProductoManual" title="Agregar producto de otro local (externo)">
+                <button class="btn btn-outline-primary rounded-3 px-3 shadow-sm" type="button" data-bs-toggle="modal"
+                    data-bs-target="#modalProductoManual" title="Agregar producto de otro local (externo)">
                     <i class="fa-solid fa-plus me-1"></i><i class="fa-solid fa-handshake"></i>
                 </button>
-                
+
                 <!-- Resultados del autocompletado dinámico -->
-                <div id="autocomplete_results" class="list-group position-absolute shadow-lg rounded-3 border bg-white" style="top: 100%; left: 0; right: 55px; z-index: 1050; display: none; max-height: 380px; overflow-y: auto;">
+                <div id="autocomplete_results" class="list-group position-absolute shadow-lg rounded-3 border bg-white"
+                    style="top: 100%; left: 0; right: 55px; z-index: 1050; display: none; max-height: 380px; overflow-y: auto;">
                 </div>
             </div>
         </div>
@@ -78,12 +85,12 @@
     <div class="col-lg-4">
         <div class="card card-custom p-4 position-sticky shadow-sm" style="top: 100px;">
             <h4 class="fw-bold text-brand-black mb-4 pb-3 border-bottom">Balance</h4>
-            
+
             <div class="d-flex justify-content-between mb-3">
                 <span class="text-muted fw-bold">Unidades Totales:</span>
                 <span class="fw-bold fs-5" id="total_items">0</span>
             </div>
-            
+
             <div class="d-flex justify-content-between mb-4">
                 <span class="text-muted fw-bold align-self-center">Total a Cobrar:</span>
                 <span class="fw-bolder fs-1 text-brand-black" id="total_amount">$0</span>
@@ -93,16 +100,21 @@
             <!-- Selector de Fecha de Venta (colapsable) exclusivo para Admin -->
             <div class="mb-3">
                 <div class="d-flex align-items-center justify-content-between">
-                    <small class="text-muted fw-semibold"><i class="fa-regular fa-calendar me-1"></i> Fecha de Venta:</small>
-                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" id="btn_toggle_fecha" onclick="toggleFechaVenta()">
-                        <span id="fecha_display_label" class="badge bg-light text-dark border rounded-pill px-3 py-1" style="font-size: 0.8rem; cursor: pointer;">
+                    <small class="text-muted fw-semibold"><i class="fa-regular fa-calendar me-1"></i> Fecha de
+                        Venta:</small>
+                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" id="btn_toggle_fecha"
+                        onclick="toggleFechaVenta()">
+                        <span id="fecha_display_label" class="badge bg-light text-dark border rounded-pill px-3 py-1"
+                            style="font-size: 0.8rem; cursor: pointer;">
                             📅 Hoy
                         </span>
                     </button>
                 </div>
                 <div id="fecha_venta_container" style="display: none; margin-top: 8px;">
-                    <input type="date" id="fecha_venta_input" class="form-control form-control-sm bg-light border-0 shadow-sm" value="">
-                    <small class="form-text text-muted"><i class="fa-solid fa-circle-info text-primary me-1"></i>Cambia la fecha para registrar ventas de días anteriores.</small>
+                    <input type="date" id="fecha_venta_input"
+                        class="form-control form-control-sm bg-light border-0 shadow-sm" value="">
+                    <small class="form-text text-muted"><i class="fa-solid fa-circle-info text-primary me-1"></i>Cambia
+                        la fecha para registrar ventas de días anteriores.</small>
                 </div>
             </div>
             {% endif %}
@@ -114,15 +126,18 @@
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <label class="form-label fw-bold text-brand-black small text-uppercase m-0">Método de Pago</label>
                     <div class="form-check form-switch ms-auto">
-                        <input class="form-check-input" type="checkbox" id="toggle_pago_mixto" style="cursor: pointer; width: 3rem; height: 1.5rem;">
-                        <label class="form-check-label fw-bold small text-muted" for="toggle_pago_mixto" style="cursor: pointer;">Dividir Pago</label>
+                        <input class="form-check-input" type="checkbox" id="toggle_pago_mixto"
+                            style="cursor: pointer; width: 3rem; height: 1.5rem;">
+                        <label class="form-check-label fw-bold small text-muted" for="toggle_pago_mixto"
+                            style="cursor: pointer;">Dividir Pago</label>
                     </div>
                 </div>
             </div>
 
             <!-- Modo 1: Pago Único (por defecto) -->
             <div id="pago_unico_section">
-                <select id="metodo-pago" class="form-select form-select-lg border-0 shadow-sm bg-light mb-3" style="cursor: pointer;">
+                <select id="metodo-pago" class="form-select form-select-lg border-0 shadow-sm bg-light mb-3"
+                    style="cursor: pointer;">
                     <option value="efectivo">💵 Efectivo</option>
                     <option value="nequi">📱 Nequi</option>
                     <option value="bancolombia">🏦 Bancolombia</option>
@@ -133,19 +148,28 @@
                 <!-- Calculadora de Cambio / Vueltas Rápida para Efectivo -->
                 <div id="calculadora_cambio" class="p-3 bg-light rounded-3 mb-3 border border-dashed">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label fw-bold small text-muted mb-0"><i class="fa-solid fa-money-bill-wave text-success me-1"></i>Efectivo Recibido</label>
-                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small fw-bold text-brand-blue" onclick="ponerMontoExacto()">Exacto</button>
+                        <label class="form-label fw-bold small text-muted mb-0"><i
+                                class="fa-solid fa-money-bill-wave text-success me-1"></i>Efectivo Recibido</label>
+                        <button type="button"
+                            class="btn btn-sm btn-link text-decoration-none p-0 small fw-bold text-brand-blue"
+                            onclick="ponerMontoExacto()">Exacto</button>
                     </div>
                     <div class="input-group input-group-sm mb-2">
                         <span class="input-group-text bg-white border-0 fw-bold">$</span>
-                        <input type="number" id="efectivo_recibido" class="form-control border-0 shadow-sm text-end fw-bold fs-6" placeholder="0" step="100" min="0">
+                        <input type="number" id="efectivo_recibido"
+                            class="form-control border-0 shadow-sm text-end fw-bold fs-6" placeholder="0" step="100"
+                            min="0">
                     </div>
                     <!-- Botones rápidos de billetes (COP) -->
                     <div class="d-flex gap-1 mb-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill" style="font-size: 0.75rem;" onclick="sumarBillete(10000)">+10k</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill" style="font-size: 0.75rem;" onclick="sumarBillete(20000)">+20k</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill" style="font-size: 0.75rem;" onclick="sumarBillete(50000)">+50k</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill" style="font-size: 0.75rem;" onclick="sumarBillete(100000)">+100k</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill"
+                            style="font-size: 0.75rem;" onclick="sumarBillete(10000)">+10k</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill"
+                            style="font-size: 0.75rem;" onclick="sumarBillete(20000)">+20k</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill"
+                            style="font-size: 0.75rem;" onclick="sumarBillete(50000)">+50k</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill"
+                            style="font-size: 0.75rem;" onclick="sumarBillete(100000)">+100k</button>
                     </div>
                     <!-- Display de Vueltas -->
                     <div id="vueltas_display" class="d-flex justify-content-between align-items-center pt-2 border-top">
@@ -158,14 +182,18 @@
             <!-- Modo 2: Pago Dividido/Mixto (oculto por defecto) -->
             <div id="pago_mixto_section" style="display: none;">
                 <!-- Indicador visual del saldo restante -->
-                <div class="alert border-0 shadow-sm py-2 px-3 mb-3" id="saldo_restante_alert" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                <div class="alert border-0 shadow-sm py-2 px-3 mb-3" id="saldo_restante_alert"
+                    style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="fw-bold text-muted text-uppercase"><i class="fa-solid fa-scale-balanced me-1"></i> Saldo por cubrir:</small>
+                        <small class="fw-bold text-muted text-uppercase"><i class="fa-solid fa-scale-balanced me-1"></i>
+                            Saldo por cubrir:</small>
                         <span class="fw-bolder fs-5" id="saldo_restante" style="color: var(--brand-blue);">$0</span>
                     </div>
                     <!-- Barra de progreso visual -->
                     <div class="progress mt-2" style="height: 6px; border-radius: 10px;">
-                        <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: linear-gradient(90deg, #A3D8DE, #7BC8D0); border-radius: 10px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" id="barra_progreso_pago" role="progressbar"
+                            style="width: 0%; background: linear-gradient(90deg, #A3D8DE, #7BC8D0); border-radius: 10px;"
+                            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
 
@@ -174,15 +202,18 @@
                     <!-- Se inyecta dinámicamente -->
                 </div>
 
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100" id="btn_agregar_pago">
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100"
+                    id="btn_agregar_pago">
                     <i class="fa-solid fa-plus me-1"></i> Agregar otro método de pago
                 </button>
             </div>
 
             <!-- Botón de Cobro Masivo Azul Turquesa -->
             <div class="d-grid gap-2 mt-4">
-                <button type="button" class="btn btn-blue btn-lg rounded-3 py-3 shadow-sm text-uppercase fw-bold" id="btn_process_sale">
-                    <i class="fa-solid fa-credit-card me-2"></i> Procesar Cobro <small class="opacity-75" style="font-size: 0.75rem;">(F4)</small>
+                <button type="button" class="btn btn-blue btn-lg rounded-3 py-3 shadow-sm text-uppercase fw-bold"
+                    id="btn_process_sale">
+                    <i class="fa-solid fa-credit-card me-2"></i> Procesar Cobro <small class="opacity-75"
+                        style="font-size: 0.75rem;">(F4)</small>
                 </button>
                 <button type="button" class="btn btn-light mt-2 fw-bold text-muted rounded-pill" id="btn_clear_cart">
                     Limpiar Venta
@@ -196,31 +227,41 @@
 <style>
     /* Destello suave cuando un producto entra o suma en el carrito */
     @keyframes flashHighlight {
-        0% { background-color: rgba(0, 139, 139, 0.22); }
-        100% { background-color: transparent; }
+        0% {
+            background-color: rgba(0, 139, 139, 0.22);
+        }
+
+        100% {
+            background-color: transparent;
+        }
     }
+
     .flash-item {
         animation: flashHighlight 0.7s ease-out;
     }
 
     /* Autocompletado mejorado */
     #autocomplete_results {
-        box-shadow: 0 12px 28px rgba(0,0,0,0.15) !important;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15) !important;
         border: 1px solid #dee2e6 !important;
     }
+
     .autocomplete-item {
         cursor: pointer;
         transition: background-color 0.12s ease;
         padding: 10px 14px;
         border-bottom: 1px solid #f1f3f5;
     }
+
     .autocomplete-item:last-child {
         border-bottom: none;
     }
+
     .autocomplete-item:hover,
     .autocomplete-item.active {
         background-color: #f0fdfd !important;
     }
+
     .highlight-match {
         background-color: #fff3cd;
         font-weight: 700;
@@ -233,17 +274,28 @@
     #pago_mixto_section .pago-item {
         animation: slideDown 0.25s ease-out;
     }
+
     @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
+
     .form-check-input:checked {
         background-color: var(--brand-blue) !important;
         border-color: var(--brand-blue) !important;
     }
+
     #saldo_restante_alert.saldo-cubierto {
         background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
     }
+
     #saldo_restante_alert.saldo-excedido {
         background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
     }
@@ -260,6 +312,7 @@
         font-weight: bold;
         transition: all 0.15s ease;
     }
+
     .btn-qty:hover {
         background-color: var(--brand-blue) !important;
         color: white !important;
@@ -272,39 +325,50 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 bg-light">
-                <h5 class="modal-title fw-bold text-primary"><i class="fa-solid fa-handshake me-2"></i>Producto Manual (Externo)</h5>
+                <h5 class="modal-title fw-bold text-primary"><i class="fa-solid fa-handshake me-2"></i>Producto Manual
+                    (Externo)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="alert py-2 px-3 rounded-3 mb-4" style="background: #e8f4fd; border: 1px dashed #90c4e8;">
-                    <small class="text-muted"><i class="fa-solid fa-circle-info text-primary me-1"></i>Usa esta opción para productos <strong>prestados de otros locales</strong>. No se descuenta stock propio.</small>
+                    <small class="text-muted"><i class="fa-solid fa-circle-info text-primary me-1"></i>Usa esta opción
+                        para productos <strong>prestados de otros locales</strong>. No se descuenta stock
+                        propio.</small>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Nombre del Producto</label>
-                    <input type="text" id="manual_nombre" class="form-control bg-light border-0" placeholder="Ej: Funda iPhone 15 Pro Max - Local Alex" required>
+                    <input type="text" id="manual_nombre" class="form-control bg-light border-0"
+                        placeholder="Ej: Funda iPhone 15 Pro Max - Local Alex" required>
                 </div>
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold"><i class="fa-solid fa-arrow-down text-danger me-1"></i>Costo de Compra</label>
+                        <label class="form-label fw-bold"><i class="fa-solid fa-arrow-down text-danger me-1"></i>Costo
+                            de Compra</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-0">$</span>
-                            <input type="number" step="1" min="0" id="manual_costo" class="form-control bg-light border-0" placeholder="Lo que se le paga al vecino" required>
+                            <input type="number" step="1" min="0" id="manual_costo"
+                                class="form-control bg-light border-0" placeholder="Lo que se le paga al vecino"
+                                required>
                         </div>
                         <small class="form-text text-muted">Precio al que te lo vende el otro local</small>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold"><i class="fa-solid fa-arrow-up text-success me-1"></i>Precio de Venta</label>
+                        <label class="form-label fw-bold"><i class="fa-solid fa-arrow-up text-success me-1"></i>Precio
+                            de Venta</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-0 text-success fw-bold">$</span>
-                            <input type="number" step="1" min="0" id="manual_precio_venta" class="form-control bg-light border-0" placeholder="Lo que se cobra al cliente" required>
+                            <input type="number" step="1" min="0" id="manual_precio_venta"
+                                class="form-control bg-light border-0" placeholder="Lo que se cobra al cliente"
+                                required>
                         </div>
                         <small class="form-text text-muted">Precio al que se le vende al cliente final</small>
                     </div>
                 </div>
                 <div class="mb-0">
                     <label class="form-label fw-bold">Cantidad</label>
-                    <input type="number" id="manual_cantidad" class="form-control bg-light border-0 w-25" min="1" value="1" required>
+                    <input type="number" id="manual_cantidad" class="form-control bg-light border-0 w-25" min="1"
+                        value="1" required>
                 </div>
             </div>
             <div class="modal-footer border-0 bg-light">
@@ -318,19 +382,22 @@
 </div>
 
 <!-- Modal Solicitud de Aprobación de Precio Remoto -->
-<div class="modal fade" id="modalAprobacionPrecio" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalAprobacionPrecioLabel" aria-hidden="true">
+<div class="modal fade" id="modalAprobacionPrecio" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="modalAprobacionPrecioLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-            <div class="modal-header text-white" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-bottom: 3px solid var(--brand-primary);">
-                <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="modalAprobacionPrecioLabel">
-                    <i class="fa-solid fa-shield-halved" style="color: var(--brand-primary);"></i> Aprobación de Precio Requerida
+            <div class="modal-header" style="background: #FFFFFF; border-bottom: 2px solid #8D4925;">
+                <h5 class="modal-title fw-bold d-flex align-items-center gap-2" style="color: #2C1E1A;"
+                    id="modalAprobacionPrecioLabel">
+                    <i class="fa-solid fa-shield-halved" style="color: #8D4925;"></i> Aprobación de Precio Requerida
                 </h5>
             </div>
             <div class="modal-body p-4 bg-white">
                 <!-- Estado 1: Formulario / Resumen de Solicitud -->
                 <div id="aprobacion_estado_inicial">
                     <p class="text-muted small mb-3">
-                        El precio que deseas cobrar está por debajo del límite autorizado para este producto. Requiere autorización remota de un administrador.
+                        El precio que deseas cobrar está por debajo del límite autorizado para este producto. Requiere
+                        autorización remota de un administrador.
                     </p>
 
                     <div class="p-3 rounded-3 mb-3" style="background-color: #F8FAFC; border: 1px solid #E2E8F0;">
@@ -340,21 +407,26 @@
                             <span class="fw-bold text-dark" id="aprob_precio_original">$0</span>
                         </div>
                         <div class="d-flex justify-content-between small py-1 mt-1">
-                            <span class="fw-bold" style="color: var(--brand-primary);">Precio Solicitado (Oferta):</span>
-                            <span class="fw-bolder fs-5" style="color: var(--brand-primary);" id="aprob_precio_solicitado">$0</span>
+                            <span class="fw-bold" style="color: var(--brand-primary);">Precio Solicitado
+                                (Oferta):</span>
+                            <span class="fw-bolder fs-5" style="color: var(--brand-primary);"
+                                id="aprob_precio_solicitado">$0</span>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-secondary mb-1">Motivo / Justificación:</label>
-                        <input type="text" class="form-control form-control-sm border shadow-sm rounded-3" id="aprob_motivo_input" placeholder="Ej: Cliente frecuente, lleva 3 unidades...">
+                        <input type="text" class="form-control form-control-sm border shadow-sm rounded-3"
+                            id="aprob_motivo_input" placeholder="Ej: Cliente frecuente, lleva 3 unidades...">
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end">
-                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold" onclick="cancelarYRestaurarPrecio()">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold"
+                            onclick="cancelarYRestaurarPrecio()">
                             Cancelar
                         </button>
-                        <button type="button" class="btn btn-pink rounded-pill px-4 fw-bold shadow-sm" id="btn_enviar_solicitud_aprob" onclick="enviarSolicitudAprobacion()">
+                        <button type="button" class="btn btn-pink rounded-pill px-4 fw-bold shadow-sm"
+                            id="btn_enviar_solicitud_aprob" onclick="enviarSolicitudAprobacion()">
                             <i class="fa-solid fa-paper-plane me-1"></i> Solicitar Autorización
                         </button>
                     </div>
@@ -362,7 +434,8 @@
 
                 <!-- Estado 2: Esperando al Administrador (Polling Activo) -->
                 <div id="aprobacion_estado_espera" style="display: none;" class="text-center py-3">
-                    <div class="spinner-border text-primary mb-3" style="width: 3.5rem; height: 3.5rem; color: var(--brand-primary) !important;" role="status">
+                    <div class="spinner-border text-primary mb-3"
+                        style="width: 3.5rem; height: 3.5rem; color: var(--brand-primary) !important;" role="status">
                         <span class="visually-hidden">Cargando...</span>
                     </div>
                     <h5 class="fw-bold text-brand-black mb-1">Esperando Respuesta del Administrador</h5>
@@ -373,7 +446,8 @@
                         <i class="fa-solid fa-arrows-rotate fa-spin me-1"></i> Comprobando cada 3 segundos...
                     </div>
                     <div>
-                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold" onclick="cancelarSolicitudEnEspera()">
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold"
+                            onclick="cancelarSolicitudEnEspera()">
                             <i class="fa-solid fa-xmark me-1"></i> Cancelar Solicitud
                         </button>
                     </div>
@@ -388,7 +462,8 @@
                     <p class="text-muted small mb-3" id="aprob_motivo_rechazo">
                         El administrador denegó la rebaja de precio.
                     </p>
-                    <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold" onclick="cancelarYRestaurarPrecio()">
+                    <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold"
+                        onclick="cancelarYRestaurarPrecio()">
                         Aceptar y volver al precio original
                     </button>
                 </div>
@@ -411,16 +486,16 @@
     function posToast(mensaje, tipo = 'info') {
         const container = document.getElementById('pos_toast_container');
         if (!container) return;
-        
+
         const toast = document.createElement('div');
         const bgClass = tipo === 'success' ? 'bg-success text-white' :
-                        tipo === 'warning' ? 'bg-warning text-dark' :
-                        tipo === 'danger' ? 'bg-danger text-white' : 'bg-dark text-white';
-        
+            tipo === 'warning' ? 'bg-warning text-dark' :
+                tipo === 'danger' ? 'bg-danger text-white' : 'bg-white text-dark border';
+
         const icon = tipo === 'success' ? 'fa-circle-check' :
-                     tipo === 'warning' ? 'fa-triangle-exclamation' :
-                     tipo === 'danger' ? 'fa-circle-xmark' : 'fa-circle-info';
-                     
+            tipo === 'warning' ? 'fa-triangle-exclamation' :
+                tipo === 'danger' ? 'fa-circle-xmark' : 'fa-circle-info';
+
         toast.className = `toast align-items-center ${bgClass} border-0 shadow-lg show mb-2 rounded-3`;
         toast.setAttribute('role', 'alert');
         toast.style.minWidth = '260px';
@@ -433,7 +508,7 @@
                 <button type="button" class="btn-close ${tipo !== 'warning' ? 'btn-close-white' : ''} me-2 m-auto" onclick="this.closest('.toast').remove()"></button>
             </div>
         `;
-        
+
         container.appendChild(toast);
         setTimeout(() => {
             toast.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
@@ -619,15 +694,15 @@
     }
 
     // Inicializar fecha de venta con la fecha de hoy (Solo Admin)
-    (function() {
+    (function () {
         const fechaInput = document.getElementById('fecha_venta_input');
         if (!fechaInput) return;
-        
+
         const hoy = new Date();
         const yyyy = hoy.getFullYear();
         const mm = String(hoy.getMonth() + 1).padStart(2, '0');
         const dd = String(hoy.getDate()).padStart(2, '0');
-        
+
         fechaInput.value = `${yyyy}-${mm}-${dd}`;
         fechaInput.max = `${yyyy}-${mm}-${dd}`;
         fechaInput.addEventListener('change', actualizarLabelFecha);
@@ -690,7 +765,7 @@
         if (tokens.length === 0) return originalText;
 
         const normText = normalizarTexto(originalText);
-        
+
         let ranges = [];
         tokens.forEach(tok => {
             const normTok = normalizarTexto(tok);
@@ -728,10 +803,10 @@
         return result;
     }
 
-    skuInputEl.addEventListener('input', function() {
+    skuInputEl.addEventListener('input', function () {
         clearTimeout(autocompleteTimeout);
         const query = this.value.trim();
-        
+
         if (query.length < 1) {
             autocompleteResultsEl.style.display = 'none';
             currentAutocompleteItems = [];
@@ -775,7 +850,7 @@
                         // Mini chips de variantes si tiene
                         let variantesHtml = '';
                         if (p.variantes && p.variantes.length > 0) {
-                            const chips = p.variantes.slice(0, 3).map(v => 
+                            const chips = p.variantes.slice(0, 3).map(v =>
                                 `<span class="badge bg-light text-secondary border me-1">${highlightQuery(v.nombre, query)}</span>`
                             ).join('');
                             const mas = p.variantes.length > 3 ? `<span class="badge bg-light text-muted">+${p.variantes.length - 3}</span>` : '';
@@ -823,9 +898,9 @@
     });
 
     // Control de navegación con flechas y tecla Enter en el input de búsqueda
-    skuInputEl.addEventListener('keydown', function(e) {
+    skuInputEl.addEventListener('keydown', function (e) {
         const items = autocompleteResultsEl.querySelectorAll('.autocomplete-item');
-        
+
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (items.length === 0) return;
@@ -870,7 +945,7 @@
     }
 
     // Ocultar resultados al hacer clic fuera
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (!skuInputEl.contains(e.target) && !autocompleteResultsEl.contains(e.target)) {
             autocompleteResultsEl.style.display = 'none';
             activeAutocompleteIndex = -1;
@@ -907,9 +982,9 @@
         }
 
         // Buscar si ya existe en el carrito la misma referencia y variante
-        const existente = carrito.find(item => 
-            item.id === producto.id && 
-            item.variant_id === variantId && 
+        const existente = carrito.find(item =>
+            item.id === producto.id &&
+            item.variant_id === variantId &&
             !item.es_manual
         );
 
@@ -933,7 +1008,7 @@
                 nombre: producto.nombre,
                 tipo_inventario: producto.tipo_inventario,
                 cantidad: 1,
-                precio_final: initialPrecio, 
+                precio_final: initialPrecio,
                 precio_limite: initialLimite,
                 precio_minimo: initialMinimo,
                 precio_sugerido: initialPrecio,
@@ -980,7 +1055,7 @@
 
             posToast(`No se encontró ningún producto con el código o nombre '${sku}'`, 'warning');
             skuInputEl.select();
-            
+
         } catch (error) {
             console.error('Error Catcher:', error);
             posToast('Error de comunicación con el servidor', 'danger');
@@ -1003,7 +1078,7 @@
     // ==========================================
     // --- PRODUCTO MANUAL (PRESTADO VECINO) ---
     // ==========================================
-    document.getElementById('btn_agregar_manual').addEventListener('click', function() {
+    document.getElementById('btn_agregar_manual').addEventListener('click', function () {
         const nombre = document.getElementById('manual_nombre').value.trim();
         const costo = parseFloat(document.getElementById('manual_costo').value) || 0;
         const precioVenta = parseFloat(document.getElementById('manual_precio_venta').value) || 0;
@@ -1044,10 +1119,10 @@
     // ==========================================
     // --- MÉTODOS DE PAGO Y SALDOS ---
     // ==========================================
-    document.getElementById('toggle_pago_mixto').addEventListener('change', function() {
+    document.getElementById('toggle_pago_mixto').addEventListener('change', function () {
         const unicoSec = document.getElementById('pago_unico_section');
         const mixtoSec = document.getElementById('pago_mixto_section');
-        
+
         if (this.checked) {
             unicoSec.style.display = 'none';
             mixtoSec.style.display = 'block';
@@ -1106,16 +1181,16 @@
         const granTotal = obtenerGranTotal();
         const sumaPagos = pagosMixtos.reduce((sum, p) => sum + (p.monto || 0), 0);
         const saldo = granTotal - sumaPagos;
-        
+
         const saldoEl = document.getElementById('saldo_restante');
         const alertEl = document.getElementById('saldo_restante_alert');
         const barraEl = document.getElementById('barra_progreso_pago');
-        
+
         if (saldoEl) saldoEl.innerText = formatoCOP(Math.abs(saldo));
-        
+
         const porcentaje = granTotal > 0 ? Math.min((sumaPagos / granTotal) * 100, 100) : 0;
         if (barraEl) barraEl.style.width = porcentaje + '%';
-        
+
         if (alertEl) {
             alertEl.classList.remove('saldo-cubierto', 'saldo-excedido');
             if (saldo === 0 && granTotal > 0) {
@@ -1145,8 +1220,8 @@
         pagosMixtos.forEach((pago, index) => {
             const div = document.createElement('div');
             div.className = 'pago-item d-flex gap-2 align-items-center';
-            
-            let optionsHtml = METODOS_DISPONIBLES.map(m => 
+
+            let optionsHtml = METODOS_DISPONIBLES.map(m =>
                 `<option value="${m.value}" ${m.value === pago.metodo_pago ? 'selected' : ''}>${m.label}</option>`
             ).join('');
 
@@ -1177,22 +1252,22 @@
         const calcEl = document.getElementById('calculadora_cambio');
         const metodoSel = document.getElementById('metodo-pago');
         if (!calcEl || !metodoSel) return;
-        
+
         const toggleMixto = document.getElementById('toggle_pago_mixto');
         if (toggleMixto && toggleMixto.checked) {
             calcEl.style.display = 'none';
             return;
         }
-        
+
         const esEfectivo = (metodoSel.value === 'efectivo');
         calcEl.style.display = esEfectivo ? 'block' : 'none';
-        
+
         const granTotal = obtenerGranTotal();
         const recibidoInput = document.getElementById('efectivo_recibido');
         const recibido = parseFloat(recibidoInput.value) || 0;
         const vueltasEl = document.getElementById('monto_vueltas');
         const labelEl = document.querySelector('#vueltas_display span:first-child');
-        
+
         if (recibido <= 0) {
             vueltasEl.innerText = '$0';
             vueltasEl.className = 'fw-bolder fs-5 text-muted';
@@ -1248,7 +1323,7 @@
     function actualizarItem(index, campo, valor) {
         const item = carrito[index];
         if (!item) return;
-        
+
         if (campo === 'cantidad') {
             const nuevaCantidad = parseInt(valor);
             if (isNaN(nuevaCantidad) || nuevaCantidad <= 0) {
@@ -1256,7 +1331,7 @@
                 renderizarCarrito();
                 return;
             }
-            
+
             if (!item.es_manual) {
                 let max_stock = item.cantidad_stock;
                 if (item.variantes && item.variantes.length > 0) {
@@ -1319,7 +1394,7 @@
                 item.precio_final = nuevoPrecio;
             }
         }
-        
+
         renderizarCarrito();
     }
 
@@ -1351,7 +1426,7 @@
         const tbody = document.getElementById('cart_body');
         const totalAmountEl = document.getElementById('total_amount');
         const totalItemsEl = document.getElementById('total_items');
-        
+
         tbody.innerHTML = '';
         let granTotal = 0;
         let totalItems = 0;
@@ -1389,7 +1464,7 @@
             }
 
             const tr = document.createElement('tr');
-            
+
             // Destello visual al agregar/actualizar
             if (highlightId && item.id === highlightId && item.variant_id === highlightVariant) {
                 tr.className = 'flash-item';
@@ -1490,14 +1565,14 @@
     // ==========================================
     // --- ATAJOS DE TECLADO GLOBALES DEL POS ---
     // ==========================================
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         // F2 o tecla '/': Enfocar buscador instantáneo desde cualquier parte
         if (e.key === 'F2' || (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA')) {
             e.preventDefault();
             skuInputEl.focus();
             skuInputEl.select();
         }
-        
+
         // F4 o Ctrl+Enter: Disparar cobro directamente
         if (e.key === 'F4' || (e.ctrlKey && e.key === 'Enter')) {
             e.preventDefault();
@@ -1508,7 +1583,7 @@
     // ==========================================
     // --- PROCESAR COBRO Y FINALIZAR VENTA ---
     // ==========================================
-    document.getElementById('btn_process_sale').addEventListener('click', function() {
+    document.getElementById('btn_process_sale').addEventListener('click', function () {
         if (carrito.length === 0) {
             posToast('El carrito está vacío. Agrega productos para cobrar.', 'warning');
             skuInputEl.focus();
@@ -1610,7 +1685,7 @@
                 if (!reciboWindow) {
                     posToast('Aviso: Permite las ventanas emergentes para abrir el ticket térmico automáticamente.', 'warning');
                 }
-                
+
                 posToast(`✅ ¡Venta #${data.sale_id} procesada con éxito! Inventario actualizado.`, 'success');
 
                 // Purgar carrito para el siguiente cliente
@@ -1618,12 +1693,12 @@
                 pagosMixtos = [];
                 const inputRecibido = document.getElementById('efectivo_recibido');
                 if (inputRecibido) inputRecibido.value = '';
-                
-                renderizarCarrito(); 
+
+                renderizarCarrito();
                 resetPagosMixtos();
                 actualizarCalculadoraCambio();
                 skuInputEl.focus();
-                
+
             } else {
                 posToast(`Error: ${data.error}`, 'danger');
             }
