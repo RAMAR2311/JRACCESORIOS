@@ -2,6 +2,27 @@
 
 {% block title %}Inventario de Perfumería & Lociones | JR ACCESORIOS{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Optimización táctil para PWA y Móviles */
+    .perf-tab-pills {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.5rem;
+        padding-bottom: 4px;
+    }
+    .perf-tab-pills .nav-link {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid px-2 px-md-4 py-3">
 
@@ -62,11 +83,11 @@
                 <hr class="my-3" style="border-color: rgba(141, 73, 37, 0.15);">
 
                 <div class="d-flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-blue d-inline-flex align-items-center gap-2 px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalIngresarEsencia">
+                    <button type="button" class="btn btn-blue d-inline-flex align-items-center gap-2 px-3 py-2" onclick="abrirModalIngresarEsencia()">
                         <i class="fa-solid fa-plus-circle"></i>
                         <span>Ingresar Gramos</span>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalAjustarEsencia">
+                    <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2" onclick="abrirModalAjustarEsencia()">
                         <i class="fa-solid fa-sliders"></i>
                         <span>Ajuste Manual</span>
                     </button>
@@ -115,8 +136,8 @@
         </div>
     </div>
 
-    <!-- PESTAÑAS DEL MÓDULO -->
-    <ul class="nav nav-pills mb-4 gap-2" id="perfumeriaTabs" role="tablist">
+    <!-- PESTAÑAS DEL MÓDULO (Optimizadas con scroll horizontal táctil) -->
+    <ul class="nav nav-pills mb-4 perf-tab-pills" id="perfumeriaTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active px-3 py-2 fw-semibold rounded-pill" id="tab-envases-btn" data-bs-toggle="pill" data-bs-target="#tab-envases" type="button" role="tab">
                 <i class="fa-solid fa-prescription-bottle me-1"></i> Envases & Consumo ({{ envases|length }})
@@ -145,9 +166,9 @@
                         <h5 class="fw-bold mb-0" style="color: #2C1E1A;">Tipos de Envase y Regla de Descuento</h5>
                         <p class="text-muted small mb-0">Cada envase descuenta sus gramos de esencia al venderse en caja</p>
                     </div>
-                    <button type="button" class="btn btn-blue btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalNuevoEnvase">
+                    <button type="button" class="btn btn-blue btn-sm d-flex align-items-center gap-1" onclick="abrirModalNuevoEnvase()">
                         <i class="fa-solid fa-plus"></i>
-                        <span>Nuevo Tipo de Envase</span>
+                        <span>+ Nuevo Tipo de Envase</span>
                     </button>
                 </div>
 
@@ -198,146 +219,29 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-primary" title="Sumar Stock" data-bs-toggle="modal" data-bs-target="#modalSumarStockEnvase{{ env.id }}">
+                                        <button type="button" class="btn btn-outline-primary" title="Sumar Stock" 
+                                                onclick="abrirModalSumarStockEnvase({{ env.id }}, '{{ env.nombre|escape }}', {{ env.stock_unidades }})">
                                             <i class="fa-solid fa-plus"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-secondary" title="Ajustar Stock" data-bs-toggle="modal" data-bs-target="#modalAjustarStockEnvase{{ env.id }}">
+                                        <button type="button" class="btn btn-outline-secondary" title="Ajustar Stock" 
+                                                onclick="abrirModalAjustarStockEnvase({{ env.id }}, '{{ env.nombre|escape }}', {{ env.stock_unidades }})">
                                             <i class="fa-solid fa-sliders"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-dark" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditarEnvase{{ env.id }}">
+                                        <button type="button" class="btn btn-outline-dark" title="Editar" 
+                                                onclick="abrirModalEditarEnvase({{ env.id }}, '{{ env.nombre|escape }}', {{ env.capacidad_ml }}, {{ env.gramos_consumo }}, {{ env.precio_venta|round|int }})">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminarEnvase{{ env.id }}">
+                                        <button type="button" class="btn btn-outline-danger" title="Eliminar" 
+                                                onclick="abrirModalEliminarEnvase({{ env.id }}, '{{ env.nombre|escape }}')">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
-
-                                    <!-- MODAL SUMAR STOCK ENVASE -->
-                                    <div class="modal fade" id="modalSumarStockEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.sumar_stock_envase', id=env.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Sumar Stock: {{ env.nombre }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p class="text-muted small">Stock actual: <strong>{{ env.stock_unidades }} unidades</strong></p>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Cantidad de unidades compradas / recibidas:</label>
-                                                            <input type="number" name="cantidad" class="form-control" min="1" step="1" required placeholder="Ej. 50">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Motivo / Proveedor (Opcional):</label>
-                                                            <input type="text" name="motivo" class="form-control" placeholder="Ej. Compra de frascos / Factura #102">
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-blue">Sumar al Stock</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- MODAL AJUSTAR STOCK ENVASE -->
-                                    <div class="modal fade" id="modalAjustarStockEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.ajustar_stock_envase', id=env.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Ajuste Físico: {{ env.nombre }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Nuevo stock físico en mostrador:</label>
-                                                            <input type="number" name="nuevo_stock" class="form-control" min="0" step="1" value="{{ env.stock_unidades }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Motivo del ajuste (Obligatorio):</label>
-                                                            <input type="text" name="motivo" class="form-control" required placeholder="Ej. Conteo físico, frasco roto, etc.">
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-blue">Guardar Ajuste</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- MODAL EDITAR ENVASE -->
-                                    <div class="modal fade" id="modalEditarEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.editar_envase', id=env.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Editar Envase: {{ env.nombre }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Nombre descriptivo:</label>
-                                                            <input type="text" name="nombre" class="form-control" value="{{ env.nombre }}" required>
-                                                        </div>
-                                                        <div class="row g-2 mb-3">
-                                                            <div class="col-6">
-                                                                <label class="form-label fw-bold small">Capacidad (ml):</label>
-                                                                <input type="number" name="capacidad_ml" class="form-control" value="{{ env.capacidad_ml }}" min="1" required>
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <label class="form-label fw-bold small">Gramos que consume:</label>
-                                                                <input type="number" name="gramos_consumo" class="form-control" value="{{ env.gramos_consumo }}" step="0.1" min="0.1" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Precio de Venta (COP):</label>
-                                                            <input type="number" name="precio_venta" class="form-control" value="{{ env.precio_venta|round|int }}" min="0" step="100" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-blue">Guardar Cambios</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- MODAL ELIMINAR ENVASE -->
-                                    <div class="modal fade" id="modalEliminarEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.eliminar_envase', id=env.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold text-danger">Deshabilitar Envase</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p>¿Estás seguro de deshabilitar el envase <strong>"{{ env.nombre }}"</strong>? Ya no aparecerá disponible para ventas en la caja registradora.</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-danger">Sí, Deshabilitar</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </td>
                             </tr>
                             {% else %}
                             <tr>
                                 <td colspan="6" class="text-center py-4 text-muted">
-                                    No hay envases configurados. Haz clic en "Nuevo Tipo de Envase".
+                                    No hay envases configurados. Haz clic en "+ Nuevo Tipo de Envase".
                                 </td>
                             </tr>
                             {% endfor %}
@@ -355,9 +259,9 @@
                         <h5 class="fw-bold mb-0" style="color: #2C1E1A;">Lociones Ya Preparadas (Entrega Inmediata)</h5>
                         <p class="text-muted small mb-0">Productos terminados por unidad simple (no descuentan envases ni gramos al venderse)</p>
                     </div>
-                    <button type="button" class="btn btn-blue btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalNuevaLocion">
+                    <button type="button" class="btn btn-blue btn-sm d-flex align-items-center gap-1" onclick="abrirModalNuevaLocion()">
                         <i class="fa-solid fa-plus"></i>
-                        <span>Nueva Loción Lista</span>
+                        <span>+ Nueva Loción Lista</span>
                     </button>
                 </div>
 
@@ -396,136 +300,29 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-primary" title="Sumar Stock" data-bs-toggle="modal" data-bs-target="#modalSumarStockLocion{{ loc.id }}">
+                                        <button type="button" class="btn btn-outline-primary" title="Sumar Stock" 
+                                                onclick="abrirModalSumarStockLocion({{ loc.id }}, '{{ loc.nombre|escape }}', {{ loc.stock_unidades }})">
                                             <i class="fa-solid fa-plus"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-secondary" title="Ajustar Stock" data-bs-toggle="modal" data-bs-target="#modalAjustarStockLocion{{ loc.id }}">
+                                        <button type="button" class="btn btn-outline-secondary" title="Ajustar Stock" 
+                                                onclick="abrirModalAjustarStockLocion({{ loc.id }}, '{{ loc.nombre|escape }}', {{ loc.stock_unidades }})">
                                             <i class="fa-solid fa-sliders"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-dark" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditarLocion{{ loc.id }}">
+                                        <button type="button" class="btn btn-outline-dark" title="Editar" 
+                                                onclick="abrirModalEditarLocion({{ loc.id }}, '{{ loc.nombre|escape }}', {{ loc.precio_venta|round|int }})">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminarLocion{{ loc.id }}">
+                                        <button type="button" class="btn btn-outline-danger" title="Eliminar" 
+                                                onclick="abrirModalEliminarLocion({{ loc.id }}, '{{ loc.nombre|escape }}')">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
-
-                                    <!-- MODAL SUMAR STOCK LOCION -->
-                                    <div class="modal fade" id="modalSumarStockLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.sumar_stock_locion', id=loc.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Sumar Stock: {{ loc.nombre }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p class="text-muted small">Stock actual: <strong>{{ loc.stock_unidades }} unidades</strong></p>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Cantidad de unidades a sumar:</label>
-                                                            <input type="number" name="cantidad" class="form-control" min="1" step="1" required placeholder="Ej. 3">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Motivo (Opcional):</label>
-                                                            <input type="text" name="motivo" class="form-control" placeholder="Ej. Lociones terminadas preparadas previamente">
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-blue">Sumar al Stock</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- MODAL AJUSTAR STOCK LOCION -->
-                                    <div class="modal fade" id="modalAjustarStockLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.ajustar_stock_locion', id=loc.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Ajuste Físico: {{ loc.nombre }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Nuevo stock físico disponible:</label>
-                                                            <input type="number" name="nuevo_stock" class="form-control" min="0" step="1" value="{{ loc.stock_unidades }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Motivo del ajuste (Obligatorio):</label>
-                                                            <input type="text" name="motivo" class="form-control" required placeholder="Ej. Conteo físico en vitrina">
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-blue">Guardar Ajuste</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- MODAL EDITAR LOCION -->
-                                    <div class="modal fade" id="modalEditarLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.editar_locion_lista', id=loc.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Editar Loción: {{ loc.nombre }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Nombre de la Referencia:</label>
-                                                            <input type="text" name="nombre" class="form-control" value="{{ loc.nombre }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small">Precio de Venta (COP):</label>
-                                                            <input type="number" name="precio_venta" class="form-control" value="{{ loc.precio_venta|round|int }}" min="0" step="100" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-blue">Guardar Cambios</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- MODAL ELIMINAR LOCION -->
-                                    <div class="modal fade" id="modalEliminarLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content text-start">
-                                                <form action="{{ url_for('perfumeria_bp.eliminar_locion', id=loc.id) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold text-danger">Deshabilitar Loción</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p>¿Estás seguro de deshabilitar la loción <strong>"{{ loc.nombre }}"</strong>?</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-danger">Sí, Deshabilitar</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </td>
                             </tr>
                             {% else %}
                             <tr>
                                 <td colspan="4" class="text-center py-4 text-muted">
-                                    No hay lociones listas configuradas. Haz clic en "Nueva Loción Lista".
+                                    No hay lociones listas configuradas. Haz clic en "+ Nueva Loción Lista".
                                 </td>
                             </tr>
                             {% endfor %}
@@ -621,7 +418,11 @@
 
 </div>
 
-<!-- MODAL INGRESAR ESENCIA (GRAMOS) -->
+<!-- ====================================================================== -->
+<!-- MODALES DEL SISTEMA (Ubicados fuera de tablas para compatibilidad PWA) -->
+<!-- ====================================================================== -->
+
+<!-- 1. MODAL INGRESAR ESENCIA (GRAMOS) -->
 <div class="modal fade" id="modalIngresarEsencia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -658,7 +459,7 @@
     </div>
 </div>
 
-<!-- MODAL AJUSTAR ESENCIA (GRAMOS) -->
+<!-- 2. MODAL AJUSTAR ESENCIA (GRAMOS) -->
 <div class="modal fade" id="modalAjustarEsencia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -695,7 +496,7 @@
     </div>
 </div>
 
-<!-- MODAL NUEVO TIPO DE ENVASE -->
+<!-- 3. MODAL NUEVO TIPO DE ENVASE -->
 <div class="modal fade" id="modalNuevoEnvase" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -742,7 +543,127 @@
     </div>
 </div>
 
-<!-- MODAL NUEVA LOCIÓN LISTA -->
+<!-- 4. MODAL DINÁMICO: SUMAR STOCK DE ENVASE -->
+<div class="modal fade" id="modalDynSumarStockEnvase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynSumarStockEnvase" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="dynSumarStockEnvaseTitle" style="color: #2C1E1A;">Sumar Stock de Envase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Stock actual: <strong id="dynSumarStockEnvaseActual">0 unidades</strong></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Cantidad de unidades compradas / recibidas:</label>
+                        <input type="number" name="cantidad" id="dynSumarStockEnvaseInput" class="form-control" min="1" step="1" required placeholder="Ej. 50">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Motivo / Proveedor (Opcional):</label>
+                        <input type="text" name="motivo" class="form-control" placeholder="Ej. Compra de frascos / Factura #102">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue">Sumar al Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 5. MODAL DINÁMICO: AJUSTAR STOCK DE ENVASE -->
+<div class="modal fade" id="modalDynAjustarStockEnvase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynAjustarStockEnvase" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="dynAjustarStockEnvaseTitle" style="color: #2C1E1A;">Ajuste Físico de Envase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nuevo stock físico en mostrador:</label>
+                        <input type="number" name="nuevo_stock" id="dynAjustarStockEnvaseInput" class="form-control" min="0" step="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Motivo del ajuste (Obligatorio):</label>
+                        <input type="text" name="motivo" class="form-control" required placeholder="Ej. Conteo físico, frasco roto, etc.">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue">Guardar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 6. MODAL DINÁMICO: EDITAR ENVASE -->
+<div class="modal fade" id="modalDynEditarEnvase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynEditarEnvase" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="dynEditarEnvaseTitle" style="color: #2C1E1A;">Editar Envase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nombre descriptivo:</label>
+                        <input type="text" name="nombre" id="dynEditarEnvaseNombre" class="form-control" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Capacidad (ml):</label>
+                            <input type="number" name="capacidad_ml" id="dynEditarEnvaseMl" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Gramos que consume:</label>
+                            <input type="number" name="gramos_consumo" id="dynEditarEnvaseGramos" class="form-control" step="0.1" min="0.1" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Precio de Venta (COP):</label>
+                        <input type="number" name="precio_venta" id="dynEditarEnvasePrecio" class="form-control" min="0" step="100" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 7. MODAL DINÁMICO: ELIMINAR ENVASE -->
+<div class="modal fade" id="modalDynEliminarEnvase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynEliminarEnvase" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">Deshabilitar Envase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de deshabilitar el envase <strong id="dynEliminarEnvaseNombre"></strong>? Ya no aparecerá disponible para ventas en la caja registradora.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Sí, Deshabilitar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 8. MODAL NUEVA LOCIÓN LISTA -->
 <div class="modal fade" id="modalNuevaLocion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -781,5 +702,218 @@
         </div>
     </div>
 </div>
+
+<!-- 9. MODAL DINÁMICO: SUMAR STOCK LOCIÓN -->
+<div class="modal fade" id="modalDynSumarStockLocion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynSumarStockLocion" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="dynSumarStockLocionTitle" style="color: #2C1E1A;">Sumar Stock de Loción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Stock actual: <strong id="dynSumarStockLocionActual">0 unidades</strong></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Cantidad de unidades a sumar:</label>
+                        <input type="number" name="cantidad" id="dynSumarStockLocionInput" class="form-control" min="1" step="1" required placeholder="Ej. 3">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Motivo (Opcional):</label>
+                        <input type="text" name="motivo" class="form-control" placeholder="Ej. Lociones preparadas previamente">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue">Sumar al Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 10. MODAL DINÁMICO: AJUSTAR STOCK LOCIÓN -->
+<div class="modal fade" id="modalDynAjustarStockLocion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynAjustarStockLocion" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="dynAjustarStockLocionTitle" style="color: #2C1E1A;">Ajuste Físico de Loción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nuevo stock físico disponible:</label>
+                        <input type="number" name="nuevo_stock" id="dynAjustarStockLocionInput" class="form-control" min="0" step="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Motivo del ajuste (Obligatorio):</label>
+                        <input type="text" name="motivo" class="form-control" required placeholder="Ej. Conteo físico en vitrina">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue">Guardar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 11. MODAL DINÁMICO: EDITAR LOCIÓN -->
+<div class="modal fade" id="modalDynEditarLocion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynEditarLocion" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="dynEditarLocionTitle" style="color: #2C1E1A;">Editar Loción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nombre de la Referencia:</label>
+                        <input type="text" name="nombre" id="dynEditarLocionNombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Precio de Venta (COP):</label>
+                        <input type="number" name="precio_venta" id="dynEditarLocionPrecio" class="form-control" min="0" step="100" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 12. MODAL DINÁMICO: ELIMINAR LOCIÓN -->
+<div class="modal fade" id="modalDynEliminarLocion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDynEliminarLocion" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">Deshabilitar Loción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de deshabilitar la loción <strong id="dynEliminarLocionNombre"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Sí, Deshabilitar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- CONTROLADORES JAVASCRIPT PARA MODALES DINÁMICOS Y COMPATIBILIDAD MÓVIL -->
+<!-- ====================================================================== -->
+<script>
+    function getBsModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        return bootstrap.Modal.getOrCreateInstance(el);
+    }
+
+    // Modal Ingresar Esencia
+    function abrirModalIngresarEsencia() {
+        const modal = getBsModal('modalIngresarEsencia');
+        if (modal) modal.show();
+    }
+
+    // Modal Ajustar Esencia
+    function abrirModalAjustarEsencia() {
+        const modal = getBsModal('modalAjustarEsencia');
+        if (modal) modal.show();
+    }
+
+    // Modal Nuevo Envase
+    function abrirModalNuevoEnvase() {
+        const modal = getBsModal('modalNuevoEnvase');
+        if (modal) modal.show();
+    }
+
+    // Modal Nueva Loción
+    function abrirModalNuevaLocion() {
+        const modal = getBsModal('modalNuevaLocion');
+        if (modal) modal.show();
+    }
+
+    // Modal Dinámico: Sumar Stock Envase
+    function abrirModalSumarStockEnvase(id, nombre, stockActual) {
+        document.getElementById('formDynSumarStockEnvase').action = `/perfumeria/envases/${id}/sumar-stock`;
+        document.getElementById('dynSumarStockEnvaseTitle').textContent = `Sumar Stock: ${nombre}`;
+        document.getElementById('dynSumarStockEnvaseActual').textContent = `${stockActual} unidades`;
+        document.getElementById('dynSumarStockEnvaseInput').value = '';
+        getBsModal('modalDynSumarStockEnvase')?.show();
+    }
+
+    // Modal Dinámico: Ajustar Stock Envase
+    function abrirModalAjustarStockEnvase(id, nombre, stockActual) {
+        document.getElementById('formDynAjustarStockEnvase').action = `/perfumeria/envases/${id}/ajustar-stock`;
+        document.getElementById('dynAjustarStockEnvaseTitle').textContent = `Ajuste Físico: ${nombre}`;
+        document.getElementById('dynAjustarStockEnvaseInput').value = stockActual;
+        getBsModal('modalDynAjustarStockEnvase')?.show();
+    }
+
+    // Modal Dinámico: Editar Envase
+    function abrirModalEditarEnvase(id, nombre, capacidadMl, gramosConsumo, precioVenta) {
+        document.getElementById('formDynEditarEnvase').action = `/perfumeria/envases/${id}/editar`;
+        document.getElementById('dynEditarEnvaseTitle').textContent = `Editar Envase: ${nombre}`;
+        document.getElementById('dynEditarEnvaseNombre').value = nombre;
+        document.getElementById('dynEditarEnvaseMl').value = capacidadMl;
+        document.getElementById('dynEditarEnvaseGramos').value = gramosConsumo;
+        document.getElementById('dynEditarEnvasePrecio').value = precioVenta;
+        getBsModal('modalDynEditarEnvase')?.show();
+    }
+
+    // Modal Dinámico: Eliminar Envase
+    function abrirModalEliminarEnvase(id, nombre) {
+        document.getElementById('formDynEliminarEnvase').action = `/perfumeria/envases/${id}/eliminar`;
+        document.getElementById('dynEliminarEnvaseNombre').textContent = `"${nombre}"`;
+        getBsModal('modalDynEliminarEnvase')?.show();
+    }
+
+    // Modal Dinámico: Sumar Stock Loción
+    function abrirModalSumarStockLocion(id, nombre, stockActual) {
+        document.getElementById('formDynSumarStockLocion').action = `/perfumeria/listas/${id}/sumar-stock`;
+        document.getElementById('dynSumarStockLocionTitle').textContent = `Sumar Stock: ${nombre}`;
+        document.getElementById('dynSumarStockLocionActual').textContent = `${stockActual} unidades`;
+        document.getElementById('dynSumarStockLocionInput').value = '';
+        getBsModal('modalDynSumarStockLocion')?.show();
+    }
+
+    // Modal Dinámico: Ajustar Stock Loción
+    function abrirModalAjustarStockLocion(id, nombre, stockActual) {
+        document.getElementById('formDynAjustarStockLocion').action = `/perfumeria/listas/${id}/ajustar-stock`;
+        document.getElementById('dynAjustarStockLocionTitle').textContent = `Ajuste Físico: ${nombre}`;
+        document.getElementById('dynAjustarStockLocionInput').value = stockActual;
+        getBsModal('modalDynAjustarStockLocion')?.show();
+    }
+
+    // Modal Dinámico: Editar Loción
+    function abrirModalEditarLocion(id, nombre, precioVenta) {
+        document.getElementById('formDynEditarLocion').action = `/perfumeria/listas/${id}/editar`;
+        document.getElementById('dynEditarLocionTitle').textContent = `Editar Loción: ${nombre}`;
+        document.getElementById('dynEditarLocionNombre').value = nombre;
+        document.getElementById('dynEditarLocionPrecio').value = precioVenta;
+        getBsModal('modalDynEditarLocion')?.show();
+    }
+
+    // Modal Dinámico: Eliminar Loción
+    function abrirModalEliminarLocion(id, nombre) {
+        document.getElementById('formDynEliminarLocion').action = `/perfumeria/listas/${id}/eliminar`;
+        document.getElementById('dynEliminarLocionNombre').textContent = `"${nombre}"`;
+        getBsModal('modalDynEliminarLocion')?.show();
+    }
+</script>
 
 {% endblock %}
