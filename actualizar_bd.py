@@ -34,6 +34,7 @@ def main():
             ("sale_details", "perfumeria_lista_id", "INTEGER"),
             ("sale_details", "perfume_fragancia", "VARCHAR(200)"),
             ("sale_details", "gramos_totales", "NUMERIC(10, 2)"),
+            ("perfumeria_envases", "precio_recarga", "NUMERIC(10, 2) DEFAULT 0"),
         ]
 
         for tabla, col, tipo in columnas_pg:
@@ -116,12 +117,14 @@ def main():
 
             if PerfumeriaEnvase.query.count() == 0:
                 envases_default = [
-                    PerfumeriaEnvase(nombre="Envase 10 ml", capacidad_ml=10, gramos_consumo=4.0, stock_unidades=0, precio_venta=15000),
-                    PerfumeriaEnvase(nombre="Envase 30 ml", capacidad_ml=30, gramos_consumo=10.0, stock_unidades=0, precio_venta=35000),
-                    PerfumeriaEnvase(nombre="Envase 60 ml", capacidad_ml=60, gramos_consumo=20.0, stock_unidades=0, precio_venta=60000),
-                    PerfumeriaEnvase(nombre="Envase 100 ml", capacidad_ml=100, gramos_consumo=40.0, stock_unidades=0, precio_venta=95000),
+                    PerfumeriaEnvase(nombre="Envase 10 ml", capacidad_ml=10, gramos_consumo=4.0, stock_unidades=0, precio_venta=15000, precio_recarga=10000),
+                    PerfumeriaEnvase(nombre="Envase 30 ml", capacidad_ml=30, gramos_consumo=10.0, stock_unidades=0, precio_venta=35000, precio_recarga=25000),
+                    PerfumeriaEnvase(nombre="Envase 60 ml", capacidad_ml=60, gramos_consumo=20.0, stock_unidades=0, precio_venta=60000, precio_recarga=45000),
+                    PerfumeriaEnvase(nombre="Envase 100 ml", capacidad_ml=100, gramos_consumo=40.0, stock_unidades=0, precio_venta=95000, precio_recarga=70000),
                 ]
                 db.session.add_all(envases_default)
+            else:
+                db.session.execute(db.text("UPDATE perfumeria_envases SET precio_recarga = 0 WHERE precio_recarga IS NULL;"))
             db.session.commit()
         except Exception as e:
             db.session.rollback()

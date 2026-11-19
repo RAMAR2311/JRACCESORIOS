@@ -115,6 +115,7 @@ def nuevo_envase():
         gramos_consumo = Decimal(request.form.get('gramos_consumo', '0').strip().replace(',', '.'))
         stock_unidades = int(request.form.get('stock_unidades', 0))
         precio_venta = Decimal(request.form.get('precio_venta', '0').strip().replace(',', '.'))
+        precio_recarga = Decimal(request.form.get('precio_recarga', '0').strip().replace(',', '.') or '0')
 
         if not nombre or capacidad_ml <= 0 or gramos_consumo <= 0:
             flash('Por favor diligencia nombre, capacidad (ml) y gramos de consumo válidos.', 'danger')
@@ -126,6 +127,7 @@ def nuevo_envase():
             gramos_consumo=gramos_consumo,
             stock_unidades=max(0, stock_unidades),
             precio_venta=max(Decimal('0.00'), precio_venta),
+            precio_recarga=max(Decimal('0.00'), precio_recarga),
             activo=True
         )
         db.session.add(envase)
@@ -162,6 +164,8 @@ def editar_envase(id):
         capacidad_ml = int(request.form.get('capacidad_ml', envase.capacidad_ml))
         gramos_consumo = Decimal(request.form.get('gramos_consumo', str(envase.gramos_consumo)).strip().replace(',', '.'))
         precio_venta = Decimal(request.form.get('precio_venta', str(envase.precio_venta)).strip().replace(',', '.'))
+        precio_recarga_str = request.form.get('precio_recarga', str(envase.precio_recarga or '0')).strip().replace(',', '.')
+        precio_recarga = Decimal(precio_recarga_str or '0')
 
         if not nombre or capacidad_ml <= 0 or gramos_consumo <= 0:
             flash('Datos del envase inválidos.', 'danger')
@@ -170,7 +174,8 @@ def editar_envase(id):
         envase.nombre = nombre
         envase.capacidad_ml = capacidad_ml
         envase.gramos_consumo = gramos_consumo
-        envase.precio_venta = precio_venta
+        envase.precio_venta = max(Decimal('0.00'), precio_venta)
+        envase.precio_recarga = max(Decimal('0.00'), precio_recarga)
 
         db.session.commit()
         flash(f'Envase "{nombre}" actualizado correctamente.', 'success')

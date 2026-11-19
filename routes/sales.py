@@ -99,20 +99,23 @@ def procesar_venta():
             if cantidad_vendida <= 0:
                 raise ValueError("La cantidad vendida debe ser mayor a 0.")
 
-            # ----------------- CASO 1: PERFUME PREPARADO A MEDIDA -----------------
-            if tipo_linea == 'perfume_preparado':
+            # ----------------- CASO 1: PERFUME PREPARADO O RECARGA -----------------
+            if tipo_linea in ('perfume_preparado', 'perfume_recarga'):
                 envase_id = item.get('perfumeria_envase_id')
                 fragancia = (item.get('perfume_fragancia') or '').strip()
+                es_recarga = (tipo_linea == 'perfume_recarga') or item.get('es_recarga', False)
 
                 if not envase_id:
-                    raise ValueError("Debes seleccionar un tamaño de envase para la loción preparada.")
+                    raise ValueError("Debes seleccionar un tamaño de envase para la loción o recarga.")
 
                 envase = PerfumeriaEnvase.query.with_for_update().get(envase_id)
                 if not envase or not envase.activo:
                     raise ValueError("El tipo de envase seleccionado no existe o está deshabilitado.")
 
-                if cantidad_vendida > envase.stock_unidades:
-                    raise ValueError(f"Stock insuficiente de envases '{envase.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {envase.stock_unidades} u.")
+                # Si NO es recarga, validar stock físico de envases
+                if not es_recarga:
+                    if cantidad_vendida > envase.stock_unidades:
+                        raise ValueError(f"Stock insuficiente de envases '{envase.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {envase.stock_unidades} u.")
 
                 gramos_por_unidad = Decimal(str(envase.gramos_consumo or '0.00'))
                 gramos_necesarios = gramos_por_unidad * Decimal(cantidad_vendida)
@@ -131,29 +134,31 @@ def procesar_venta():
                         f"pero solo hay {stock_esencia_actual:,.2f}g disponibles en inventario."
                     )
 
-                # Descontar 1 envase físico por unidad
-                saldo_ant_envase = envase.stock_unidades
-                envase.stock_unidades -= cantidad_vendida
+                # Si NO es recarga, descontar 1 envase físico por unidad y registrar kardex
+                if not es_recarga:
+                    saldo_ant_envase = envase.stock_unidades
+                    envase.stock_unidades -= cantidad_vendida
+
+                    # Registrar Kardex de Envase
+                    mov_envase = PerfumeriaMovimiento(
+                        tipo_insumo='envase',
+                        referencia_id=envase.id,
+                        tipo_movimiento='salida_venta',
+                        cantidad=-Decimal(cantidad_vendida),
+                        saldo_anterior=Decimal(saldo_ant_envase),
+                        saldo_nuevo=Decimal(envase.stock_unidades),
+                        motivo=f"Venta POS #{nueva_venta.id}: {fragancia or 'Loción Preparada'} ({envase.nombre})",
+                        sale_id=nueva_venta.id,
+                        user_id=current_user.id
+                    )
+                    db.session.add(mov_envase)
 
                 # Descontar gramos correspondientes de la bolsa global
                 saldo_ant_esencia = stock_esencia_actual
                 esencia.stock_gramos_disponibles = stock_esencia_actual - gramos_necesarios
 
-                # Registrar Kardex de Envase
-                mov_envase = PerfumeriaMovimiento(
-                    tipo_insumo='envase',
-                    referencia_id=envase.id,
-                    tipo_movimiento='salida_venta',
-                    cantidad=-Decimal(cantidad_vendida),
-                    saldo_anterior=Decimal(saldo_ant_envase),
-                    saldo_nuevo=Decimal(envase.stock_unidades),
-                    motivo=f"Venta POS #{nueva_venta.id}: {fragancia or 'Loción Preparada'} ({envase.nombre})",
-                    sale_id=nueva_venta.id,
-                    user_id=current_user.id
-                )
-                db.session.add(mov_envase)
-
                 # Registrar Kardex de Esencia
+                tipo_mov_desc = " (RECARGA)" if es_recarga else ""
                 mov_esencia = PerfumeriaMovimiento(
                     tipo_insumo='esencia',
                     referencia_id=None,
@@ -161,7 +166,7 @@ def procesar_venta():
                     cantidad=-gramos_necesarios,
                     saldo_anterior=saldo_ant_esencia,
                     saldo_nuevo=esencia.stock_gramos_disponibles,
-                    motivo=f"Consumo esencia venta POS #{nueva_venta.id}: {cantidad_vendida}x {envase.nombre} ({fragancia or 'Sin fragancia'})",
+                    motivo=f"Consumo esencia venta POS #{nueva_venta.id}{tipo_mov_desc}: {cantidad_vendida}x {envase.nombre} ({fragancia or 'Sin fragancia'})",
                     sale_id=nueva_venta.id,
                     user_id=current_user.id
                 )
@@ -171,7 +176,7 @@ def procesar_venta():
                     sale_id=nueva_venta.id,
                     product_id=None,
                     variant_id=None,
-                    tipo_linea='perfume_preparado',
+                    tipo_linea='perfume_recarga' if es_recarga else 'perfume_preparado',
                     perfumeria_envase_id=envase.id,
                     perfume_fragancia=fragancia,
                     gramos_totales=gramos_necesarios,
@@ -767,6 +772,26 @@ def eliminar_venta(sale_id):
                             saldo_anterior=saldo_ant_es,
                             saldo_nuevo=esencia.stock_gramos_disponibles,
                             motivo=f"Anulación venta #{venta.id}: reintegro de {detalle.gramos_totales:,.2f}g de esencia",
+                            sale_id=venta.id,
+                            user_id=current_user.id
+                        )
+                        db.session.add(mov_es)
+
+            elif detalle.tipo_linea == 'perfume_recarga':
+                # Revertir ÚNICAMENTE gramos a la bolsa global (NO envases porque cliente trajo su propio envase)
+                if detalle.gramos_totales:
+                    esencia = PerfumeriaEsenciaGlobal.query.with_for_update().first()
+                    if esencia:
+                        saldo_ant_es = esencia.stock_gramos_disponibles or Decimal('0.00')
+                        esencia.stock_gramos_disponibles = saldo_ant_es + Decimal(str(detalle.gramos_totales))
+                        mov_es = PerfumeriaMovimiento(
+                            tipo_insumo='esencia',
+                            referencia_id=None,
+                            tipo_movimiento='cancelacion_venta',
+                            cantidad=Decimal(str(detalle.gramos_totales)),
+                            saldo_anterior=saldo_ant_es,
+                            saldo_nuevo=esencia.stock_gramos_disponibles,
+                            motivo=f"Anulación venta #{venta.id}: reintegro de {detalle.gramos_totales:,.2f}g de esencia (Recarga)",
                             sale_id=venta.id,
                             user_id=current_user.id
                         )

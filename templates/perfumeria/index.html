@@ -214,8 +214,13 @@
                                     <span class="badge bg-success rounded-pill px-2 py-1">{{ env.stock_unidades }} u.</span>
                                     {% endif %}
                                 </td>
-                                <td class="text-end fw-bold" style="color: #8D4925;">
-                                    $ {{ "{:,.0f}".format(env.precio_venta) }}
+                                <td class="text-end">
+                                    <div class="fw-bold" style="color: #8D4925; font-size: 0.88rem;">
+                                        <small class="text-muted fw-normal" style="font-size: 0.72rem;">Con Envase:</small> $ {{ "{:,.0f}".format(env.precio_venta) }}
+                                    </div>
+                                    <div class="fw-bold text-primary" style="font-size: 0.84rem;">
+                                        <small class="text-muted fw-normal" style="font-size: 0.72rem;">Solo Recarga:</small> $ {{ "{:,.0f}".format(env.precio_recarga or 0) }}
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
@@ -228,7 +233,7 @@
                                             <i class="fa-solid fa-sliders"></i>
                                         </button>
                                         <button type="button" class="btn btn-outline-dark" title="Editar" 
-                                                onclick="abrirModalEditarEnvase({{ env.id }}, '{{ env.nombre|escape }}', {{ env.capacidad_ml }}, {{ env.gramos_consumo }}, {{ env.precio_venta|round|int }})">
+                                                onclick="abrirModalEditarEnvase({{ env.id }}, '{{ env.nombre|escape }}', {{ env.capacidad_ml }}, {{ env.gramos_consumo }}, {{ env.precio_venta|round|int }}, {{ (env.precio_recarga or 0)|round|int }})">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
                                         <button type="button" class="btn btn-outline-danger" title="Eliminar" 
@@ -524,13 +529,17 @@
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label fw-bold small">Stock Inicial (Unidades):</label>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-bold small">Stock Inicial (U.):</label>
                             <input type="number" name="stock_unidades" class="form-control" min="0" value="0">
                         </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold small">Precio Venta (COP):</label>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label fw-bold small">Precio con Envase:</label>
                             <input type="number" name="precio_venta" class="form-control" min="0" step="100" placeholder="Ej. 45000" required>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label fw-bold small">Precio Recarga:</label>
+                            <input type="number" name="precio_recarga" class="form-control" min="0" step="100" placeholder="Ej. 30000" value="0">
                         </div>
                     </div>
                 </div>
@@ -627,9 +636,15 @@
                             <input type="number" name="gramos_consumo" id="dynEditarEnvaseGramos" class="form-control" step="0.1" min="0.1" required>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Precio de Venta (COP):</label>
-                        <input type="number" name="precio_venta" id="dynEditarEnvasePrecio" class="form-control" min="0" step="100" required>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Precio Venta (COP):</label>
+                            <input type="number" name="precio_venta" id="dynEditarEnvasePrecio" class="form-control" min="0" step="100" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Precio Recarga (COP):</label>
+                            <input type="number" name="precio_recarga" id="dynEditarEnvasePrecioRecarga" class="form-control" min="0" step="100" value="0">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -865,13 +880,14 @@
     }
 
     // Modal Dinámico: Editar Envase
-    function abrirModalEditarEnvase(id, nombre, capacidadMl, gramosConsumo, precioVenta) {
+    function abrirModalEditarEnvase(id, nombre, capacidadMl, gramosConsumo, precioVenta, precioRecarga) {
         document.getElementById('formDynEditarEnvase').action = `/perfumeria/envases/${id}/editar`;
         document.getElementById('dynEditarEnvaseTitle').textContent = `Editar Envase: ${nombre}`;
         document.getElementById('dynEditarEnvaseNombre').value = nombre;
         document.getElementById('dynEditarEnvaseMl').value = capacidadMl;
         document.getElementById('dynEditarEnvaseGramos').value = gramosConsumo;
         document.getElementById('dynEditarEnvasePrecio').value = precioVenta;
+        document.getElementById('dynEditarEnvasePrecioRecarga').value = precioRecarga || 0;
         getBsModal('modalDynEditarEnvase')?.show();
     }
 

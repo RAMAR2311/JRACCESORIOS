@@ -491,7 +491,8 @@
                                         </div>
                                         <div class="mt-auto pt-1 border-top">
                                             <div class="fw-bold text-brand-black" style="font-size: 0.88rem;">$ {{ "{:,.0f}".format(env.precio_venta) }}</div>
-                                            <span class="small {% if env.stock_unidades <= 0 %}text-danger fw-bold{% elif env.stock_unidades <= 3 %}text-warning-emphasis{% else %}text-muted{% endif %}" style="font-size: 0.72rem;">
+                                            <div class="text-primary small fw-semibold" style="font-size: 0.72rem;">Recarga: $ {{ "{:,.0f}".format(env.precio_recarga or 0) }}</div>
+                                            <span class="small {% if env.stock_unidades <= 0 %}text-danger fw-bold{% elif env.stock_unidades <= 3 %}text-warning-emphasis{% else %}text-muted{% endif %}" style="font-size: 0.7rem;">
                                                 {{ env.stock_unidades }} disp.
                                             </span>
                                         </div>
@@ -525,6 +526,46 @@
                                     <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidadPrep(-1)"><i class="fa-solid fa-minus"></i></button>
                                     <input type="number" id="prep_cantidad_input" class="form-control text-center fw-bold" value="1" min="1" step="1" onchange="validarPreparacionPerfume()">
                                     <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidadPrep(1)"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Opción de Recarga (Cliente trae su propio envase) -->
+                        <div class="card p-2.5 px-3 mb-3 border shadow-2xs" style="background: #FFFBF7; border-color: #EBD9CE !important; border-radius: 12px;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="cursor-pointer" onclick="document.getElementById('prep_es_recarga_check').click()">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-recycle fs-5" style="color: #8D4925;"></i>
+                                        <label class="form-check-label fw-bold cursor-pointer m-0" for="prep_es_recarga_check" style="color: #2C1E1A; font-size: 0.9rem;">
+                                            Es Recarga (cliente trae envase)
+                                        </label>
+                                    </div>
+                                    <small class="text-muted d-block" style="font-size: 0.72rem;">
+                                        Descuenta únicamente gramos de esencia global. NO descuenta unidades de envase del inventario.
+                                    </small>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="prep_es_recarga_check" style="width: 2.8em; height: 1.4em;" onchange="toggleEsRecarga()">
+                                </div>
+                            </div>
+
+                            <!-- Contenedor dinámico de Precio Unitario de Recarga -->
+                            <div id="prep_recarga_precio_container" class="mt-2 pt-2 border-top" style="display: none;">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-12 col-sm-6">
+                                        <label class="form-label fw-bold small text-muted text-uppercase mb-1" style="font-size: 0.7rem;">
+                                            Precio Unitario de Recarga (COP):
+                                        </label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-white fw-bold">$</span>
+                                            <input type="number" id="prep_precio_recarga_custom" class="form-control fw-bold" step="100" min="0" placeholder="0" oninput="validarPreparacionPerfume()">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <small class="text-muted d-block mt-sm-3" id="prep_recarga_precio_hint" style="font-size: 0.72rem;">
+                                            Se cobra el precio fijado para recarga de este tamaño.
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -961,6 +1002,52 @@
             activeCard.style.boxShadow = '0 4px 12px rgba(141, 73, 37, 0.18)';
         }
 
+        const checkRecarga = document.getElementById('prep_es_recarga_check');
+        if (checkRecarga && checkRecarga.checked) {
+            const envase = perfumeriaData.envases.find(e => e.id === envaseId);
+            const customPriceInput = document.getElementById('prep_precio_recarga_custom');
+            const hintEl = document.getElementById('prep_recarga_precio_hint');
+            const precioRec = (envase && envase.precio_recarga) ? envase.precio_recarga : 0;
+            if (customPriceInput) customPriceInput.value = precioRec;
+            if (hintEl) {
+                if (precioRec > 0) {
+                    hintEl.textContent = `Precio fijado de recarga: ${formatoCOP(precioRec)}. Puedes ajustarlo si es necesario.`;
+                    hintEl.className = 'text-muted d-block mt-sm-3';
+                } else {
+                    hintEl.textContent = `⚠️ Este tamaño no tiene precio de recarga configurado. Ingresa el precio a cobrar.`;
+                    hintEl.className = 'text-warning-emphasis fw-bold d-block mt-sm-3';
+                }
+            }
+        }
+
+        validarPreparacionPerfume();
+    }
+
+    function toggleEsRecarga() {
+        const check = document.getElementById('prep_es_recarga_check');
+        const precioContainer = document.getElementById('prep_recarga_precio_container');
+        const customPriceInput = document.getElementById('prep_precio_recarga_custom');
+        const hintEl = document.getElementById('prep_recarga_precio_hint');
+
+        if (check && check.checked) {
+            if (precioContainer) precioContainer.style.display = 'block';
+            if (envaseSeleccionadoId) {
+                const envase = perfumeriaData.envases.find(e => e.id === envaseSeleccionadoId);
+                const precioRec = (envase && envase.precio_recarga) ? envase.precio_recarga : 0;
+                if (customPriceInput) customPriceInput.value = precioRec;
+                if (hintEl) {
+                    if (precioRec > 0) {
+                        hintEl.textContent = `Precio fijado de recarga: ${formatoCOP(precioRec)}. Puedes ajustarlo si es necesario.`;
+                        hintEl.className = 'text-muted d-block mt-sm-3';
+                    } else {
+                        hintEl.textContent = `⚠️ Este tamaño no tiene precio de recarga configurado. Ingresa el precio a cobrar.`;
+                        hintEl.className = 'text-warning-emphasis fw-bold d-block mt-sm-3';
+                    }
+                }
+            }
+        } else {
+            if (precioContainer) precioContainer.style.display = 'none';
+        }
         validarPreparacionPerfume();
     }
 
@@ -981,6 +1068,8 @@
         const consumoTexto = document.getElementById('prep_consumo_texto');
         const inputCantidad = document.getElementById('prep_cantidad_input');
         const inputFragancia = document.getElementById('prep_fragancia_input');
+        const checkRecarga = document.getElementById('prep_es_recarga_check');
+        const customPriceInput = document.getElementById('prep_precio_recarga_custom');
 
         if (!btn || !inputCantidad) return;
 
@@ -995,40 +1084,63 @@
         const envase = perfumeriaData.envases.find(e => e.id === envaseSeleccionadoId);
         if (!envase) return;
 
+        let esRecarga = checkRecarga ? checkRecarga.checked : false;
         let cantidad = parseInt(inputCantidad.value) || 1;
         if (cantidad < 1) { cantidad = 1; inputCantidad.value = 1; }
 
-        let gramosTotales = (envase.gramos_consumo || 0) * cantidad;
-        let precioTotal = (envase.precio_venta || 0) * cantidad;
+        let precioUnitario = 0;
+        if (esRecarga) {
+            let customVal = customPriceInput ? parseFloat(customPriceInput.value) : NaN;
+            precioUnitario = (!isNaN(customVal) && customVal >= 0) ? customVal : (envase.precio_recarga || 0);
+        } else {
+            precioUnitario = envase.precio_venta || 0;
+        }
 
+        let gramosTotales = (envase.gramos_consumo || 0) * cantidad;
+        let precioTotal = precioUnitario * cantidad;
+
+        // Sumar todos los gramos consumidos en el carrito (perfumes preparados y recargas)
         let gramosEnCarrito = carrito
-            .filter(i => i.tipo_linea === 'perfume_preparado')
+            .filter(i => i.tipo_linea === 'perfume_preparado' || i.tipo_linea === 'perfume_recarga')
             .reduce((sum, i) => sum + (i.gramos_consumo_unitario * i.cantidad), 0);
 
-        let envasesEnCarrito = carrito
-            .filter(i => i.tipo_linea === 'perfume_preparado' && i.perfumeria_envase_id === envase.id)
-            .reduce((sum, i) => sum + i.cantidad, 0);
-
-        let envasesRestantes = envase.stock_unidades - envasesEnCarrito;
         let esenciaRestante = perfumeriaData.esencia_gramos - gramosEnCarrito;
 
         if (resumenBox) resumenBox.style.display = 'block';
         if (precioTotalEl) precioTotalEl.innerText = formatoCOP(precioTotal);
+
         if (consumoTexto) {
-            consumoTexto.innerHTML = `
-                Consumo estimado: <strong>${gramosTotales.toFixed(2)} g</strong> de esencia pura y <strong>${cantidad}</strong> envase(s) de ${envase.nombre}.
-                <br><span class="text-muted">Stock actual: ${envase.stock_unidades} envases disp. | ${perfumeriaData.esencia_gramos.toFixed(2)} g esencia disponible</span>
-            `;
+            if (esRecarga) {
+                consumoTexto.innerHTML = `
+                    <span class="badge bg-primary text-white mb-1"><i class="fa-solid fa-recycle me-1"></i>RECARGA (Cliente trae envase)</span><br>
+                    Consumo estimado: <strong>${gramosTotales.toFixed(2)} g</strong> de esencia pura global.
+                    <br><span class="text-success fw-semibold"><i class="fa-solid fa-check me-1"></i>NO descuenta unidades de envases</span> | <span class="text-muted">${perfumeriaData.esencia_gramos.toFixed(2)} g esencia disponible</span>
+                `;
+            } else {
+                consumoTexto.innerHTML = `
+                    Consumo estimado: <strong>${gramosTotales.toFixed(2)} g</strong> de esencia pura y <strong>${cantidad}</strong> envase(s) de ${envase.nombre}.
+                    <br><span class="text-muted">Stock actual: ${envase.stock_unidades} envases disp. | ${perfumeriaData.esencia_gramos.toFixed(2)} g esencia disponible</span>
+                `;
+            }
         }
 
-        if (cantidad > envasesRestantes) {
-            if (alertaBox) alertaBox.style.display = 'block';
-            if (alertaMsg) alertaMsg.innerHTML = `<strong>Envases insuficientes:</strong> Solicitaste ${cantidad} pero solo hay ${Math.max(0, envasesRestantes)} disponibles de ${envase.nombre}.`;
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-ban me-1"></i> Stock insuficiente de ${envase.nombre}`;
-            return;
+        // Si NO es recarga, validar stock físico de envases
+        if (!esRecarga) {
+            let envasesEnCarrito = carrito
+                .filter(i => i.tipo_linea === 'perfume_preparado' && i.perfumeria_envase_id === envase.id)
+                .reduce((sum, i) => sum + i.cantidad, 0);
+            let envasesRestantes = envase.stock_unidades - envasesEnCarrito;
+
+            if (cantidad > envasesRestantes) {
+                if (alertaBox) alertaBox.style.display = 'block';
+                if (alertaMsg) alertaMsg.innerHTML = `<strong>Envases insuficientes:</strong> Solicitaste ${cantidad} pero solo hay ${Math.max(0, envasesRestantes)} disponibles de ${envase.nombre}. (Si el cliente trajo su propio envase, marca "¿Es Recarga?").`;
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-ban me-1"></i> Stock insuficiente de ${envase.nombre}`;
+                return;
+            }
         }
 
+        // Validar esencia en la bolsa global (aplica a ambos)
         if (gramosTotales > esenciaRestante) {
             if (alertaBox) alertaBox.style.display = 'block';
             if (alertaMsg) alertaMsg.innerHTML = `<strong>Esencia insuficiente en la bolsa global:</strong> Esta preparación requiere ${gramosTotales.toFixed(2)}g de esencia pero solo quedan ${Math.max(0, esenciaRestante).toFixed(2)}g disponibles.`;
@@ -1040,7 +1152,12 @@
         if (alertaBox) alertaBox.style.display = 'none';
         btn.disabled = false;
         const nombreFragancia = inputFragancia ? inputFragancia.value.trim() : '';
-        btn.innerHTML = `<i class="fa-solid fa-cart-plus me-1"></i> Agregar ${cantidad}x ${envase.nombre} ${nombreFragancia ? '(' + nombreFragancia + ')' : ''} — ${formatoCOP(precioTotal)}`;
+
+        if (esRecarga) {
+            btn.innerHTML = `<i class="fa-solid fa-recycle me-1"></i> Agregar Recarga ${cantidad}x ${envase.capacidad_ml}ml ${nombreFragancia ? '(' + nombreFragancia + ')' : ''} — ${formatoCOP(precioTotal)}`;
+        } else {
+            btn.innerHTML = `<i class="fa-solid fa-cart-plus me-1"></i> Agregar ${cantidad}x ${envase.nombre} ${nombreFragancia ? '(' + nombreFragancia + ')' : ''} — ${formatoCOP(precioTotal)}`;
+        }
     }
 
     function agregarPerfumePreparadoAlCarrito() {
@@ -1050,13 +1167,33 @@
 
         const inputCantidad = document.getElementById('prep_cantidad_input');
         const inputFragancia = document.getElementById('prep_fragancia_input');
+        const checkRecarga = document.getElementById('prep_es_recarga_check');
+        const customPriceInput = document.getElementById('prep_precio_recarga_custom');
+
+        const esRecarga = checkRecarga ? checkRecarga.checked : false;
         const cantidad = parseInt(inputCantidad.value) || 1;
-        const fragancia = (inputFragancia && inputFragancia.value.trim()) ? inputFragancia.value.trim() : 'Fragancia';
+        const fraganciaRaw = (inputFragancia && inputFragancia.value.trim()) ? inputFragancia.value.trim() : '';
+        const fragancia = fraganciaRaw || (esRecarga ? 'Recarga' : 'Fragancia');
+
+        let precioUnitario = 0;
+        if (esRecarga) {
+            let customVal = customPriceInput ? parseFloat(customPriceInput.value) : NaN;
+            precioUnitario = (!isNaN(customVal) && customVal >= 0) ? customVal : (envase.precio_recarga || 0);
+        } else {
+            precioUnitario = parseFloat(envase.precio_venta || 0);
+        }
+
+        const tipoLinea = esRecarga ? 'perfume_recarga' : 'perfume_preparado';
+        const tamanoLabel = envase.capacidad_ml ? `${envase.capacidad_ml} ml` : envase.nombre;
+        const itemNombre = esRecarga 
+            ? `Recarga ${tamanoLabel}${fraganciaRaw ? ' - ' + fraganciaRaw : ''}`
+            : `Perfume: ${fragancia} (${envase.nombre})`;
 
         const idx = carrito.findIndex(i => 
-            i.tipo_linea === 'perfume_preparado' && 
+            i.tipo_linea === tipoLinea && 
             i.perfumeria_envase_id === envase.id && 
-            (i.perfume_fragancia || '').toLowerCase() === fragancia.toLowerCase()
+            (i.perfume_fragancia || '').toLowerCase() === fragancia.toLowerCase() &&
+            i.precio_final === precioUnitario
         );
 
         if (idx > -1) {
@@ -1065,27 +1202,33 @@
             carrito.push({
                 product_id: null,
                 variant_id: null,
-                tipo_linea: 'perfume_preparado',
+                tipo_linea: tipoLinea,
+                es_recarga: esRecarga,
                 perfumeria_envase_id: envase.id,
                 perfumeria_lista_id: null,
-                perfume_fragancia: fragancia,
+                perfume_fragancia: fraganciaRaw || null,
                 envase_nombre: envase.nombre,
                 gramos_consumo_unitario: parseFloat(envase.gramos_consumo),
-                nombre: `Perfume: ${fragancia} (${envase.nombre})`,
-                sku: `PERF-${envase.capacidad_ml}ML`,
-                precio_final: parseFloat(envase.precio_venta),
-                precio_sugerido: parseFloat(envase.precio_venta),
-                precio_minimo: parseFloat(envase.precio_venta),
+                nombre: itemNombre,
+                sku: esRecarga ? `REC-${envase.capacidad_ml}ML` : `PERF-${envase.capacidad_ml}ML`,
+                precio_final: precioUnitario,
+                precio_sugerido: precioUnitario,
+                precio_minimo: precioUnitario,
                 cantidad: cantidad,
-                max_stock: envase.stock_unidades,
+                max_stock: esRecarga ? 9999 : envase.stock_unidades,
                 es_obsequio: false,
                 aprobado: true,
                 precio_aprobado: null
             });
         }
 
-        showToast(`Agregado al carrito: ${cantidad}x Perfume ${fragancia} (${envase.nombre})`, 'success', 2500);
+        showToast(`Agregado al carrito: ${cantidad}x ${itemNombre}`, 'success', 2500);
         renderCart(carrito.length - 1);
+
+        if (inputFragancia) inputFragancia.value = '';
+        if (inputCantidad) inputCantidad.value = 1;
+        validarPreparacionPerfume();
+    }
 
         if (inputFragancia) inputFragancia.value = '';
         if (inputCantidad) inputCantidad.value = 1;
@@ -1456,11 +1599,21 @@
                 return;
             }
             let otrosGramos = carrito
-                .filter((it, i) => it.tipo_linea === 'perfume_preparado' && i !== index)
+                .filter((it, i) => (it.tipo_linea === 'perfume_preparado' || it.tipo_linea === 'perfume_recarga') && i !== index)
                 .reduce((sum, it) => sum + (it.gramos_consumo_unitario * it.cantidad), 0);
             let gramosEste = (item.gramos_consumo_unitario || 0) * nueva;
             if ((otrosGramos + gramosEste) > perfumeriaData.esencia_gramos) {
                 showToast(`Bolsa de esencia insuficiente para ${nueva} unidades en total.`, 'warning');
+                return;
+            }
+        } else if (item.tipo_linea === 'perfume_recarga') {
+            // Validar únicamente esencia en bolsa global, NO envases
+            let otrosGramos = carrito
+                .filter((it, i) => (it.tipo_linea === 'perfume_preparado' || it.tipo_linea === 'perfume_recarga') && i !== index)
+                .reduce((sum, it) => sum + (it.gramos_consumo_unitario * it.cantidad), 0);
+            let gramosEste = (item.gramos_consumo_unitario || 0) * nueva;
+            if ((otrosGramos + gramosEste) > perfumeriaData.esencia_gramos) {
+                showToast(`Bolsa de esencia insuficiente para ${nueva} recargas en total.`, 'warning');
                 return;
             }
         } else {
@@ -1485,6 +1638,8 @@
                 showToast(`Stock insuficiente de ${envase.nombre}. Máximo: ${envase.stock_unidades}`, 'warning');
                 val = envase.stock_unidades;
             }
+        } else if (item.tipo_linea === 'perfume_recarga') {
+            // No limitamos por stock de envases físicos
         } else {
             if (val > item.max_stock) {
                 showToast(`Stock insuficiente. Máximo: ${item.max_stock}`, 'warning');
@@ -1760,6 +1915,8 @@
             let subtituloItem = `<small class="text-muted d-block fw-normal font-monospace" style="font-size: 0.75rem;">${item.sku}</small>`;
             if (item.tipo_linea === 'perfume_preparado') {
                 subtituloItem = `<small class="d-block fw-semibold" style="color: #8D4925; font-size: 0.75rem;"><i class="fa-solid fa-droplet me-1"></i>${item.envase_nombre} (${(item.gramos_consumo_unitario * item.cantidad).toFixed(1)}g esencia consumida)</small>`;
+            } else if (item.tipo_linea === 'perfume_recarga') {
+                subtituloItem = `<small class="d-block fw-semibold text-primary" style="font-size: 0.75rem;"><i class="fa-solid fa-recycle me-1"></i>Recarga (${(item.gramos_consumo_unitario * item.cantidad).toFixed(1)}g esencia consumida - Sin envase)</small>`;
             } else if (item.tipo_linea === 'perfume_listo') {
                 subtituloItem = `<small class="d-block fw-semibold text-muted" style="font-size: 0.75rem;"><i class="fa-solid fa-bottle-droplet me-1 text-primary"></i>Loción Lista (Entrega Inmediata)</small>`;
             }
@@ -2140,6 +2297,7 @@
                     precio_final: item.precio_final,
                     es_obsequio: item.es_obsequio,
                     tipo_linea: item.tipo_linea || 'accesorio',
+                    es_recarga: item.es_recarga || (item.tipo_linea === 'perfume_recarga'),
                     perfumeria_envase_id: item.perfumeria_envase_id || null,
                     perfumeria_lista_id: item.perfumeria_lista_id || null,
                     perfume_fragancia: item.perfume_fragancia || null

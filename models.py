@@ -191,6 +191,16 @@ class SaleDetail(db.Model):
             env_nombre = self.envase.nombre if self.envase else 'Envase'
             frag = self.perfume_fragancia or 'Fragancia'
             return f"Perfume: {frag} ({env_nombre})"
+        elif self.tipo_linea == 'perfume_recarga':
+            tamano = f"{self.envase.capacidad_ml} ml" if (self.envase and self.envase.capacidad_ml) else (self.envase.nombre if self.envase else '')
+            frag = (self.perfume_fragancia or '').strip()
+            if tamano and frag and frag != 'Fragancia':
+                return f"Recarga {tamano} - {frag}"
+            elif tamano:
+                return f"Recarga {tamano}"
+            elif frag and frag != 'Fragancia':
+                return f"Recarga - {frag}"
+            return "Recarga de Perfume"
         elif self.tipo_linea == 'perfume_listo':
             loc_nombre = self.locion_lista.nombre if self.locion_lista else 'Loción'
             return f"Loción Lista: {loc_nombre}"
@@ -573,6 +583,7 @@ class PerfumeriaEnvase(db.Model):
     gramos_consumo = db.Column(db.Numeric(8, 2), nullable=False, default=0.0) # Ej: 4, 10, 20, 40
     stock_unidades = db.Column(db.Integer, nullable=False, default=0)
     precio_venta = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
+    precio_recarga = db.Column(db.Numeric(10, 2), nullable=True, default=0.0)
     activo = db.Column(db.Boolean, default=True, nullable=False)
     created_at = db.Column(db.DateTime, default=obtener_hora_bogota)
 
@@ -587,6 +598,7 @@ class PerfumeriaEnvase(db.Model):
             'gramos_consumo': float(self.gramos_consumo or 0),
             'stock_unidades': self.stock_unidades or 0,
             'precio_venta': float(self.precio_venta or 0),
+            'precio_recarga': float(self.precio_recarga or 0),
             'activo': self.activo
         }
 

@@ -412,7 +412,7 @@
             <tr>
                 <td class="col-qty">{{ detalle.cantidad_vendida }}</td>
                 <td class="col-prod">
-                    {% if detalle.tipo_linea == 'perfume_preparado' or detalle.tipo_linea == 'perfume_listo' %}
+                    {% if detalle.tipo_linea in ['perfume_preparado', 'perfume_listo', 'perfume_recarga'] %}
                         {{ detalle.nombre_display }}
                     {% elif detalle.nombre_manual %}
                         {{ detalle.nombre_manual[:40] }}{% if detalle.nombre_manual|length > 40 %}...{% endif %}
