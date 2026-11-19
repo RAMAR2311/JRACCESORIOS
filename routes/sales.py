@@ -4,7 +4,7 @@ import time
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, flash, redirect, render_template, abort, url_for, current_app
 from flask_login import login_required, current_user
-from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, obtener_hora_bogota, ArqueoCaja, PriceApproval
+from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, obtener_hora_bogota, ArqueoCaja, PriceApproval, PerfumeriaEsenciaGlobal, PerfumeriaEnvase, PerfumeriaLista, PerfumeriaMovimiento
 from decorators import admin_required
 from decimal import Decimal
 from datetime import datetime, timedelta
@@ -94,11 +94,137 @@ def procesar_venta():
             precio_venta_final = Decimal(str(item.get('precio_final', '0.00')))
             es_manual = item.get('es_manual', False)
             es_obsequio = item.get('es_obsequio', False)
+            tipo_linea = item.get('tipo_linea', 'accesorio')
 
             if cantidad_vendida <= 0:
                 raise ValueError("La cantidad vendida debe ser mayor a 0.")
 
-            if es_manual:
+            # ----------------- CASO 1: PERFUME PREPARADO A MEDIDA -----------------
+            if tipo_linea == 'perfume_preparado':
+                envase_id = item.get('perfumeria_envase_id')
+                fragancia = (item.get('perfume_fragancia') or '').strip()
+
+                if not envase_id:
+                    raise ValueError("Debes seleccionar un tamaño de envase para la loción preparada.")
+
+                envase = PerfumeriaEnvase.query.with_for_update().get(envase_id)
+                if not envase or not envase.activo:
+                    raise ValueError("El tipo de envase seleccionado no existe o está deshabilitado.")
+
+                if cantidad_vendida > envase.stock_unidades:
+                    raise ValueError(f"Stock insuficiente de envases '{envase.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {envase.stock_unidades} u.")
+
+                gramos_por_unidad = Decimal(str(envase.gramos_consumo or '0.00'))
+                gramos_necesarios = gramos_por_unidad * Decimal(cantidad_vendida)
+
+                esencia = PerfumeriaEsenciaGlobal.query.with_for_update().first()
+                if not esencia:
+                    esencia = PerfumeriaEsenciaGlobal(stock_gramos_disponibles=Decimal('0.00'))
+                    db.session.add(esencia)
+                    db.session.flush()
+
+                stock_esencia_actual = esencia.stock_gramos_disponibles or Decimal('0.00')
+                if gramos_necesarios > stock_esencia_actual:
+                    raise ValueError(
+                        f"Gramos de esencia insuficientes en la bolsa global. "
+                        f"Se requieren {gramos_necesarios:,.2f}g ({cantidad_vendida}x {envase.nombre} de {gramos_por_unidad:,.2f}g c/u), "
+                        f"pero solo hay {stock_esencia_actual:,.2f}g disponibles en inventario."
+                    )
+
+                # Descontar 1 envase físico por unidad
+                saldo_ant_envase = envase.stock_unidades
+                envase.stock_unidades -= cantidad_vendida
+
+                # Descontar gramos correspondientes de la bolsa global
+                saldo_ant_esencia = stock_esencia_actual
+                esencia.stock_gramos_disponibles = stock_esencia_actual - gramos_necesarios
+
+                # Registrar Kardex de Envase
+                mov_envase = PerfumeriaMovimiento(
+                    tipo_insumo='envase',
+                    referencia_id=envase.id,
+                    tipo_movimiento='salida_venta',
+                    cantidad=-Decimal(cantidad_vendida),
+                    saldo_anterior=Decimal(saldo_ant_envase),
+                    saldo_nuevo=Decimal(envase.stock_unidades),
+                    motivo=f"Venta POS #{nueva_venta.id}: {fragancia or 'Loción Preparada'} ({envase.nombre})",
+                    sale_id=nueva_venta.id,
+                    user_id=current_user.id
+                )
+                db.session.add(mov_envase)
+
+                # Registrar Kardex de Esencia
+                mov_esencia = PerfumeriaMovimiento(
+                    tipo_insumo='esencia',
+                    referencia_id=None,
+                    tipo_movimiento='salida_venta',
+                    cantidad=-gramos_necesarios,
+                    saldo_anterior=saldo_ant_esencia,
+                    saldo_nuevo=esencia.stock_gramos_disponibles,
+                    motivo=f"Consumo esencia venta POS #{nueva_venta.id}: {cantidad_vendida}x {envase.nombre} ({fragancia or 'Sin fragancia'})",
+                    sale_id=nueva_venta.id,
+                    user_id=current_user.id
+                )
+                db.session.add(mov_esencia)
+
+                detalle = SaleDetail(
+                    sale_id=nueva_venta.id,
+                    product_id=None,
+                    variant_id=None,
+                    tipo_linea='perfume_preparado',
+                    perfumeria_envase_id=envase.id,
+                    perfume_fragancia=fragancia,
+                    gramos_totales=gramos_necesarios,
+                    cantidad_vendida=cantidad_vendida,
+                    precio_venta_final=precio_venta_final
+                )
+                db.session.add(detalle)
+                monto_total += (precio_venta_final * cantidad_vendida)
+
+            # ----------------- CASO 2: LOCIÓN YA PREPARADA (PRODUCTO TERMINADO) -----------------
+            elif tipo_linea == 'perfume_listo':
+                locion_id = item.get('perfumeria_lista_id')
+                if not locion_id:
+                    raise ValueError("Debes especificar la loción preparada que se va a vender.")
+
+                locion = PerfumeriaLista.query.with_for_update().get(locion_id)
+                if not locion or not locion.activo:
+                    raise ValueError("La loción seleccionada no existe o está inactiva.")
+
+                if cantidad_vendida > locion.stock_unidades:
+                    raise ValueError(f"Stock insuficiente para '{locion.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {locion.stock_unidades} u.")
+
+                saldo_ant_locion = locion.stock_unidades
+                locion.stock_unidades -= cantidad_vendida
+
+                mov_locion = PerfumeriaMovimiento(
+                    tipo_insumo='locion_lista',
+                    referencia_id=locion.id,
+                    tipo_movimiento='salida_venta',
+                    cantidad=-Decimal(cantidad_vendida),
+                    saldo_anterior=Decimal(saldo_ant_locion),
+                    saldo_nuevo=Decimal(locion.stock_unidades),
+                    motivo=f"Venta POS #{nueva_venta.id}: {locion.nombre}",
+                    sale_id=nueva_venta.id,
+                    user_id=current_user.id
+                )
+                db.session.add(mov_locion)
+
+                detalle = SaleDetail(
+                    sale_id=nueva_venta.id,
+                    product_id=None,
+                    variant_id=None,
+                    tipo_linea='perfume_listo',
+                    perfumeria_lista_id=locion.id,
+                    perfume_fragancia=locion.nombre,
+                    cantidad_vendida=cantidad_vendida,
+                    precio_venta_final=precio_venta_final
+                )
+                db.session.add(detalle)
+                monto_total += (precio_venta_final * cantidad_vendida)
+
+            # ----------------- CASO 3: PRODUCTO MANUAL PRESTADO -----------------
+            elif es_manual:
                 # Producto manual (prestado de otro local) — no descuenta stock
                 nombre_manual = item.get('nombre_manual', 'Producto Externo')
                 precio_costo_manual = Decimal(str(item.get('precio_costo', '0.00')))
@@ -607,7 +733,66 @@ def eliminar_venta(sale_id):
         # Revertir Stock
         from models import StockAdjustment
         for detalle in venta.detalles:
-            if detalle.variant_id:
+            if detalle.tipo_linea == 'perfume_preparado':
+                # Revertir envase físico
+                if detalle.perfumeria_envase_id:
+                    envase = PerfumeriaEnvase.query.with_for_update().get(detalle.perfumeria_envase_id)
+                    if envase:
+                        saldo_ant_env = envase.stock_unidades
+                        envase.stock_unidades += detalle.cantidad_vendida
+                        mov_env = PerfumeriaMovimiento(
+                            tipo_insumo='envase',
+                            referencia_id=envase.id,
+                            tipo_movimiento='cancelacion_venta',
+                            cantidad=Decimal(detalle.cantidad_vendida),
+                            saldo_anterior=Decimal(saldo_ant_env),
+                            saldo_nuevo=Decimal(envase.stock_unidades),
+                            motivo=f"Anulación venta #{venta.id}: devolución de {detalle.cantidad_vendida} u. de {envase.nombre}",
+                            sale_id=venta.id,
+                            user_id=current_user.id
+                        )
+                        db.session.add(mov_env)
+
+                # Revertir gramos a la bolsa global
+                if detalle.gramos_totales:
+                    esencia = PerfumeriaEsenciaGlobal.query.with_for_update().first()
+                    if esencia:
+                        saldo_ant_es = esencia.stock_gramos_disponibles or Decimal('0.00')
+                        esencia.stock_gramos_disponibles = saldo_ant_es + Decimal(str(detalle.gramos_totales))
+                        mov_es = PerfumeriaMovimiento(
+                            tipo_insumo='esencia',
+                            referencia_id=None,
+                            tipo_movimiento='cancelacion_venta',
+                            cantidad=Decimal(str(detalle.gramos_totales)),
+                            saldo_anterior=saldo_ant_es,
+                            saldo_nuevo=esencia.stock_gramos_disponibles,
+                            motivo=f"Anulación venta #{venta.id}: reintegro de {detalle.gramos_totales:,.2f}g de esencia",
+                            sale_id=venta.id,
+                            user_id=current_user.id
+                        )
+                        db.session.add(mov_es)
+
+            elif detalle.tipo_linea == 'perfume_listo':
+                # Revertir loción lista
+                if detalle.perfumeria_lista_id:
+                    locion = PerfumeriaLista.query.with_for_update().get(detalle.perfumeria_lista_id)
+                    if locion:
+                        saldo_ant_loc = locion.stock_unidades
+                        locion.stock_unidades += detalle.cantidad_vendida
+                        mov_loc = PerfumeriaMovimiento(
+                            tipo_insumo='locion_lista',
+                            referencia_id=locion.id,
+                            tipo_movimiento='cancelacion_venta',
+                            cantidad=Decimal(detalle.cantidad_vendida),
+                            saldo_anterior=Decimal(saldo_ant_loc),
+                            saldo_nuevo=Decimal(locion.stock_unidades),
+                            motivo=f"Anulación venta #{venta.id}: devolución de {locion.nombre}",
+                            sale_id=venta.id,
+                            user_id=current_user.id
+                        )
+                        db.session.add(mov_loc)
+
+            elif detalle.variant_id:
                 variante = ProductVariant.query.with_for_update().get(detalle.variant_id)
                 if variante:
                     stock_anterior = variante.cantidad_stock
@@ -844,8 +1029,22 @@ def eliminar_foto_catalogo(id):
 @sales_bp.route('/caja_visual', methods=['GET'])
 @login_required
 def caja_visual():
-    from models import obtener_hora_bogota
+    from models import obtener_hora_bogota, PerfumeriaEsenciaGlobal, PerfumeriaEnvase, PerfumeriaLista
     hoy_bogota = obtener_hora_bogota()
     productos = Product.query.filter(Product.tipo_inventario == 'tienda', Product.activo.is_(True)).order_by(Product.nombre.asc()).all()
-    return render_template('sales/caja_visual.html', productos=productos, hoy=hoy_bogota.strftime('%Y-%m-%d'))
+    esencia = PerfumeriaEsenciaGlobal.obtener_registro()
+    envases = PerfumeriaEnvase.query.filter_by(activo=True).order_by(PerfumeriaEnvase.capacidad_ml.asc()).all()
+    lociones = PerfumeriaLista.query.filter_by(activo=True).order_by(PerfumeriaLista.nombre.asc()).all()
+    envases_json = [e.to_dict() for e in envases]
+    listas_json = [l.to_dict() for l in lociones]
+    return render_template(
+        'sales/caja_visual.html',
+        productos=productos,
+        hoy=hoy_bogota.strftime('%Y-%m-%d'),
+        perfumeria_esencia=esencia,
+        perfumeria_envases=envases,
+        perfumeria_listas=lociones,
+        perfumeria_envases_json=envases_json,
+        perfumeria_listas_json=listas_json
+    )
 

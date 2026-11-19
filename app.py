@@ -98,6 +98,10 @@ def create_app():
     app.register_blueprint(aprobaciones_bp, url_prefix='/api')
     csrf.exempt(aprobaciones_bp)
 
+    # Registro de Blueprint Perfumería (Inventario Independiente)
+    from routes.perfumeria import perfumeria_bp
+    app.register_blueprint(perfumeria_bp, url_prefix='/perfumeria')
+
     # Context Processor Global: Estado de Pago del Servidor
     @app.context_processor
     def inject_pago_servidor():

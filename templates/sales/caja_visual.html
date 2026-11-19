@@ -277,21 +277,30 @@
 <div id="posToastContainer"></div>
 
 <div class="row h-100 g-4">
-    <!-- Panel Izquierdo: Catálogo de Productos -->
+    <!-- Panel Izquierdo: Catálogo de Productos y Perfumería -->
     <div class="col-lg-8 d-flex flex-column h-100" id="catalogo_productos_panel">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
             <div>
-                <h2 class="fw-bold text-brand-black m-0"><i class="fa-solid fa-store text-brand-pink me-2"></i> Caja
-                    Rápida Visual</h2>
-                <small class="text-muted">Selección rápida por catálogo táctil y visual</small>
+                <h2 class="fw-bold text-brand-black m-0"><i class="fa-solid fa-store text-brand-pink me-2"></i> Caja Rápida Visual</h2>
+                <small class="text-muted">Punto de venta unificado: Accesorios, Celulares y Perfumería</small>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-light text-muted border px-3 py-2 rounded-pill fw-semibold" id="searchMatchCount">
-                    <i class="fa-solid fa-boxes-stacked me-1"></i> {{ productos|length }} productos
-                </span>
+            
+            <!-- Selector Rápido de Líneas de Negocio (Pestañas) -->
+            <div class="d-flex align-items-center gap-1 p-1 rounded-pill border bg-white shadow-2xs">
+                <button type="button" class="btn btn-sm px-3 py-1.5 rounded-pill fw-bold transition-all" id="btnTabCelulares" onclick="cambiarLineaNegocio('celulares')" style="background: #2C1E1A; color: #FFFFFF; font-size: 0.82rem;">
+                    <i class="fa-solid fa-mobile-screen-button me-1"></i> Celulares & Accesorios
+                </button>
+                <button type="button" class="btn btn-sm px-3 py-1.5 rounded-pill fw-bold transition-all text-muted" id="btnTabPerfumeria" onclick="cambiarLineaNegocio('perfumeria')" style="background: transparent; color: #8D4925; font-size: 0.82rem;">
+                    <i class="fa-solid fa-spray-can-sparkles me-1 text-danger"></i> Perfumería
+                    <span class="badge rounded-pill ms-1" style="background: rgba(141,73,37,0.15); color: #8D4925; font-size: 0.68rem;" id="badgeEsenciaGramosHeader">
+                        {{ "{:,.0f}".format(perfumeria_esencia.stock_gramos_disponibles or 0) }}g
+                    </span>
+                </button>
             </div>
         </div>
 
+        <!-- SECCIÓN 1: CATÁLOGO DE CELULARES Y ACCESORIOS -->
+        <div id="seccion_celulares_catalogo">
         <!-- Buscador Dinámico de productos -->
         <div class="mb-4">
             <div class="input-group input-group-lg shadow-sm rounded-pill border bg-white position-relative">
@@ -411,6 +420,175 @@
                     onclick="limpiarBuscador()">
                     <i class="fa-solid fa-rotate-left me-1"></i> Restablecer filtro (Esc)
                 </button>
+            </div>
+        </div>
+        </div><!-- Fin #seccion_celulares_catalogo -->
+
+        <!-- SECCIÓN 2: CATÁLOGO DE PERFUMERÍA & LOCIONES -->
+        <div id="seccion_perfumeria_catalogo" style="display: none;">
+            <!-- Banner Resumen de Bolsa de Esencia Global -->
+            <div class="card card-custom p-3 mb-3 border-0 shadow-sm position-relative overflow-hidden" style="background: linear-gradient(135deg, #FAF7F2 0%, #FFFFFF 100%); border-left: 5px solid #8D4925 !important;">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: rgba(141, 73, 37, 0.12); color: #8D4925; font-size: 1.3rem;">
+                            <i class="fa-solid fa-flask-vial"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase d-block" style="font-size: 0.72rem; letter-spacing: 0.05em;">Bolsa Global de Esencia</span>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <span class="fs-4 fw-bold" style="color: #8D4925; font-family: var(--font-display);" id="pos_display_esencia_gramos">
+                                    {{ "{:,.2f}".format(perfumeria_esencia.stock_gramos_disponibles or 0) }}
+                                </span>
+                                <span class="text-muted small fw-semibold">gramos disponibles</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('perfumeria_bp.index') }}" target="_blank" class="btn btn-sm btn-outline-pink px-3 py-1.5 rounded-pill" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-boxes-stacked me-1"></i> Administrar Stock
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-pestañas internas: Preparar a Medida vs Lociones Listas -->
+            <ul class="nav nav-pills mb-3 gap-2" id="posPerfumeriaTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active px-3 py-1.5 rounded-pill fw-semibold" id="pos-tab-prep-btn" data-bs-toggle="pill" data-bs-target="#pos-tab-prep" type="button" role="tab" style="font-size: 0.85rem;">
+                        <i class="fa-solid fa-prescription-bottle me-1"></i> 1. Preparar Loción a Medida
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold" id="pos-tab-listas-btn" data-bs-toggle="pill" data-bs-target="#pos-tab-listas" type="button" role="tab" style="font-size: 0.85rem;">
+                        <i class="fa-solid fa-bottle-droplet me-1"></i> 2. Lociones Ya Listas ({{ perfumeria_listas|length }})
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="posPerfumeriaTabsContent">
+                <!-- SUB-PESTAÑA 1: PREPARAR LOCIÓN A MEDIDA -->
+                <div class="tab-pane fade show active" id="pos-tab-prep" role="tabpanel">
+                    <div class="card card-custom p-3 p-md-4 border shadow-sm">
+                        <!-- Paso 1: Seleccionar Envase -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted" style="letter-spacing: 0.05em;">
+                                <span class="badge bg-dark rounded-circle me-1" style="font-size: 0.7rem;">1</span> Selecciona el Tamaño de Envase:
+                            </label>
+                            <div class="row g-2" id="gridEnvasesPos">
+                                {% for env in perfumeria_envases %}
+                                <div class="col-6 col-sm-3">
+                                    <div class="card h-100 p-2 text-center border envase-select-card cursor-pointer transition-all" 
+                                         id="envase_card_{{ env.id }}"
+                                         data-envase='{{ env.to_dict()|tojson|safe }}'
+                                         onclick="seleccionarEnvase({{ env.id }})"
+                                         style="border-radius: 12px; background: #FFFFFF; border-width: 2px !important;">
+                                        <div class="py-1">
+                                            <i class="fa-solid fa-prescription-bottle fs-3 mb-1" style="color: #8D4925;"></i>
+                                            <h6 class="fw-bold mb-0" style="color: #2C1E1A; font-size: 0.9rem;">{{ env.nombre }}</h6>
+                                            <span class="badge bg-light text-muted border px-2 py-0.5 rounded-pill small mb-1" style="font-size: 0.7rem;">
+                                                Consume {{ "{:,.0f}".format(env.gramos_consumo) }}g
+                                            </span>
+                                        </div>
+                                        <div class="mt-auto pt-1 border-top">
+                                            <div class="fw-bold text-brand-black" style="font-size: 0.88rem;">$ {{ "{:,.0f}".format(env.precio_venta) }}</div>
+                                            <span class="small {% if env.stock_unidades <= 0 %}text-danger fw-bold{% elif env.stock_unidades <= 3 %}text-warning-emphasis{% else %}text-muted{% endif %}" style="font-size: 0.72rem;">
+                                                {{ env.stock_unidades }} disp.
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="col-12 text-center py-3 text-muted">
+                                    No hay envases configurados. Configúralos en el módulo de Perfumería.
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Paso 2: Fragancia y Cantidad -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-8">
+                                <label class="form-label fw-bold small text-uppercase text-muted" style="letter-spacing: 0.05em;">
+                                    <span class="badge bg-dark rounded-circle me-1" style="font-size: 0.7rem;">2</span> Referencia de la Fragancia / Nombre:
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted border"><i class="fa-solid fa-pen-nib"></i></span>
+                                    <input type="text" id="prep_fragancia_input" class="form-control" placeholder="Ej. Sauvage Dior, Good Girl, Invictus, etc." oninput="validarPreparacionPerfume()">
+                                </div>
+                                <small class="text-muted" style="font-size: 0.72rem;">Referencia descriptiva que saldrá impresa en el ticket y recibo digital.</small>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-bold small text-uppercase text-muted" style="letter-spacing: 0.05em;">
+                                    Cantidad:
+                                </label>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidadPrep(-1)"><i class="fa-solid fa-minus"></i></button>
+                                    <input type="number" id="prep_cantidad_input" class="form-control text-center fw-bold" value="1" min="1" step="1" onchange="validarPreparacionPerfume()">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidadPrep(1)"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resumen y Validación Dinámica en Tiempo Real -->
+                        <div id="prep_resumen_box" class="p-3 rounded-3 mb-3" style="background: #FAF7F2; border: 1px solid rgba(141, 73, 37, 0.15); display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small text-muted fw-bold">Consumo de Insumos:</span>
+                                <span class="fw-bold fs-6" id="prep_precio_total_display" style="color: #8D4925;">$ 0</span>
+                            </div>
+                            <div class="small" id="prep_consumo_texto" style="color: #2C1E1A;">
+                                -
+                            </div>
+                        </div>
+
+                        <!-- Alerta Dinámica de Validación Bloqueante -->
+                        <div id="prep_alerta_insuficiente" class="alert alert-danger py-2 px-3 small rounded-3 mb-3" style="display: none;">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> <span id="prep_alerta_mensaje">Insumos insuficientes.</span>
+                        </div>
+
+                        <!-- Botón de Acción -->
+                        <div>
+                            <button type="button" class="btn btn-blue w-100 py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2" id="btn_agregar_prep_carrito" onclick="agregarPerfumePreparadoAlCarrito()" disabled>
+                                <i class="fa-solid fa-cart-plus"></i>
+                                <span>Selecciona un envase para agregar</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-PESTAÑA 2: LOCIONES YA LISTAS -->
+                <div class="tab-pane fade" id="pos-tab-listas" role="tabpanel">
+                    <div class="row g-2 overflow-auto pb-4" style="max-height: calc(100vh - 300px);">
+                        {% for loc in perfumeria_listas %}
+                        <div class="col-6 col-sm-4 col-xl-3">
+                            <div class="card h-100 p-3 border shadow-sm product-card text-center {{ 'out-of-stock cursor-not-allowed' if loc.stock_unidades <= 0 else 'cursor-pointer' }}"
+                                 onclick='agregarLocionListaAlCarrito({{ loc.to_dict()|tojson|safe }})'>
+                                <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; background: rgba(93, 64, 55, 0.1); color: #5D4037; font-size: 1.25rem;">
+                                    <i class="fa-solid fa-bottle-droplet"></i>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem; line-height: 1.2; height: 2.4em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                    {{ loc.nombre }}
+                                </h6>
+                                <div class="fw-bold fs-6 mt-1" style="color: #8D4925;">
+                                    $ {{ "{:,.0f}".format(loc.precio_venta) }}
+                                </div>
+                                <div class="mt-2">
+                                    {% if loc.stock_unidades <= 0 %}
+                                    <span class="badge bg-danger rounded-pill px-2 py-0.5" style="font-size: 0.68rem;">Agotado (0 u.)</span>
+                                    {% else %}
+                                    <span class="badge bg-success rounded-pill px-2 py-0.5" style="font-size: 0.68rem;">{{ loc.stock_unidades }} disponibles</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12 text-center py-5 text-muted">
+                            <i class="fa-solid fa-bottle-droplet fa-2x mb-2 text-black-50"></i>
+                            <h6>No hay lociones listas registradas</h6>
+                            <p class="small">Agrégalas desde la sección de Perfumería en el menú lateral.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -729,6 +907,230 @@
     let activeProductData = null;
     let activeVariantsData = null;
 
+    // DATOS DE PERFUMERÍA EN EL POS
+    let perfumeriaData = {
+        esencia_gramos: {{ (perfumeria_esencia.stock_gramos_disponibles or 0)|float }},
+        envases: {{ perfumeria_envases_json|tojson|safe if perfumeria_envases_json else '[]' }},
+        listas: {{ perfumeria_listas_json|tojson|safe if perfumeria_listas_json else '[]' }}
+    };
+    let envaseSeleccionadoId = null;
+
+    function cambiarLineaNegocio(linea) {
+        const secCelulares = document.getElementById('seccion_celulares_catalogo');
+        const secPerfumeria = document.getElementById('seccion_perfumeria_catalogo');
+        const btnCel = document.getElementById('btnTabCelulares');
+        const btnPerf = document.getElementById('btnTabPerfumeria');
+
+        if (linea === 'perfumeria') {
+            secCelulares.style.display = 'none';
+            secPerfumeria.style.display = 'block';
+            btnCel.style.background = 'transparent';
+            btnCel.style.color = '#2C1E1A';
+            btnCel.classList.add('text-muted');
+            btnPerf.style.background = '#8D4925';
+            btnPerf.style.color = '#FFFFFF';
+            btnPerf.classList.remove('text-muted');
+            if (!envaseSeleccionadoId && perfumeriaData.envases && perfumeriaData.envases.length > 0) {
+                const primerDisponible = perfumeriaData.envases.find(e => e.stock_unidades > 0) || perfumeriaData.envases[0];
+                seleccionarEnvase(primerDisponible.id);
+            }
+        } else {
+            secCelulares.style.display = 'block';
+            secPerfumeria.style.display = 'none';
+            btnCel.style.background = '#2C1E1A';
+            btnCel.style.color = '#FFFFFF';
+            btnCel.classList.remove('text-muted');
+            btnPerf.style.background = 'transparent';
+            btnPerf.style.color = '#8D4925';
+            btnPerf.classList.add('text-muted');
+        }
+    }
+
+    function seleccionarEnvase(envaseId) {
+        envaseSeleccionadoId = envaseId;
+        document.querySelectorAll('.envase-select-card').forEach(card => {
+            card.style.borderColor = '#E5E7EB';
+            card.style.background = '#FFFFFF';
+            card.style.boxShadow = 'none';
+        });
+
+        const activeCard = document.getElementById(`envase_card_${envaseId}`);
+        if (activeCard) {
+            activeCard.style.borderColor = '#8D4925';
+            activeCard.style.background = 'rgba(141, 73, 37, 0.05)';
+            activeCard.style.boxShadow = '0 4px 12px rgba(141, 73, 37, 0.18)';
+        }
+
+        validarPreparacionPerfume();
+    }
+
+    function cambiarCantidadPrep(delta) {
+        const input = document.getElementById('prep_cantidad_input');
+        let val = parseInt(input.value) || 1;
+        val = Math.max(1, val + delta);
+        input.value = val;
+        validarPreparacionPerfume();
+    }
+
+    function validarPreparacionPerfume() {
+        const btn = document.getElementById('btn_agregar_prep_carrito');
+        const resumenBox = document.getElementById('prep_resumen_box');
+        const alertaBox = document.getElementById('prep_alerta_insuficiente');
+        const alertaMsg = document.getElementById('prep_alerta_mensaje');
+        const precioTotalEl = document.getElementById('prep_precio_total_display');
+        const consumoTexto = document.getElementById('prep_consumo_texto');
+        const inputCantidad = document.getElementById('prep_cantidad_input');
+        const inputFragancia = document.getElementById('prep_fragancia_input');
+
+        if (!btn || !inputCantidad) return;
+
+        if (!envaseSeleccionadoId) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-hand-pointer me-1"></i> Selecciona un envase primero';
+            if (resumenBox) resumenBox.style.display = 'none';
+            if (alertaBox) alertaBox.style.display = 'none';
+            return;
+        }
+
+        const envase = perfumeriaData.envases.find(e => e.id === envaseSeleccionadoId);
+        if (!envase) return;
+
+        let cantidad = parseInt(inputCantidad.value) || 1;
+        if (cantidad < 1) { cantidad = 1; inputCantidad.value = 1; }
+
+        let gramosTotales = (envase.gramos_consumo || 0) * cantidad;
+        let precioTotal = (envase.precio_venta || 0) * cantidad;
+
+        let gramosEnCarrito = carrito
+            .filter(i => i.tipo_linea === 'perfume_preparado')
+            .reduce((sum, i) => sum + (i.gramos_consumo_unitario * i.cantidad), 0);
+
+        let envasesEnCarrito = carrito
+            .filter(i => i.tipo_linea === 'perfume_preparado' && i.perfumeria_envase_id === envase.id)
+            .reduce((sum, i) => sum + i.cantidad, 0);
+
+        let envasesRestantes = envase.stock_unidades - envasesEnCarrito;
+        let esenciaRestante = perfumeriaData.esencia_gramos - gramosEnCarrito;
+
+        if (resumenBox) resumenBox.style.display = 'block';
+        if (precioTotalEl) precioTotalEl.innerText = formatoCOP(precioTotal);
+        if (consumoTexto) {
+            consumoTexto.innerHTML = `
+                Consumo estimado: <strong>${gramosTotales.toFixed(2)} g</strong> de esencia pura y <strong>${cantidad}</strong> envase(s) de ${envase.nombre}.
+                <br><span class="text-muted">Stock actual: ${envase.stock_unidades} envases disp. | ${perfumeriaData.esencia_gramos.toFixed(2)} g esencia disponible</span>
+            `;
+        }
+
+        if (cantidad > envasesRestantes) {
+            if (alertaBox) alertaBox.style.display = 'block';
+            if (alertaMsg) alertaMsg.innerHTML = `<strong>Envases insuficientes:</strong> Solicitaste ${cantidad} pero solo hay ${Math.max(0, envasesRestantes)} disponibles de ${envase.nombre}.`;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-ban me-1"></i> Stock insuficiente de ${envase.nombre}`;
+            return;
+        }
+
+        if (gramosTotales > esenciaRestante) {
+            if (alertaBox) alertaBox.style.display = 'block';
+            if (alertaMsg) alertaMsg.innerHTML = `<strong>Esencia insuficiente en la bolsa global:</strong> Esta preparación requiere ${gramosTotales.toFixed(2)}g de esencia pero solo quedan ${Math.max(0, esenciaRestante).toFixed(2)}g disponibles.`;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-ban me-1"></i> Esencia insuficiente en bolsa global`;
+            return;
+        }
+
+        if (alertaBox) alertaBox.style.display = 'none';
+        btn.disabled = false;
+        const nombreFragancia = inputFragancia ? inputFragancia.value.trim() : '';
+        btn.innerHTML = `<i class="fa-solid fa-cart-plus me-1"></i> Agregar ${cantidad}x ${envase.nombre} ${nombreFragancia ? '(' + nombreFragancia + ')' : ''} — ${formatoCOP(precioTotal)}`;
+    }
+
+    function agregarPerfumePreparadoAlCarrito() {
+        if (!envaseSeleccionadoId) return;
+        const envase = perfumeriaData.envases.find(e => e.id === envaseSeleccionadoId);
+        if (!envase) return;
+
+        const inputCantidad = document.getElementById('prep_cantidad_input');
+        const inputFragancia = document.getElementById('prep_fragancia_input');
+        const cantidad = parseInt(inputCantidad.value) || 1;
+        const fragancia = (inputFragancia && inputFragancia.value.trim()) ? inputFragancia.value.trim() : 'Fragancia';
+
+        const idx = carrito.findIndex(i => 
+            i.tipo_linea === 'perfume_preparado' && 
+            i.perfumeria_envase_id === envase.id && 
+            (i.perfume_fragancia || '').toLowerCase() === fragancia.toLowerCase()
+        );
+
+        if (idx > -1) {
+            carrito[idx].cantidad += cantidad;
+        } else {
+            carrito.push({
+                product_id: null,
+                variant_id: null,
+                tipo_linea: 'perfume_preparado',
+                perfumeria_envase_id: envase.id,
+                perfumeria_lista_id: null,
+                perfume_fragancia: fragancia,
+                envase_nombre: envase.nombre,
+                gramos_consumo_unitario: parseFloat(envase.gramos_consumo),
+                nombre: `Perfume: ${fragancia} (${envase.nombre})`,
+                sku: `PERF-${envase.capacidad_ml}ML`,
+                precio_final: parseFloat(envase.precio_venta),
+                precio_sugerido: parseFloat(envase.precio_venta),
+                precio_minimo: parseFloat(envase.precio_venta),
+                cantidad: cantidad,
+                max_stock: envase.stock_unidades,
+                es_obsequio: false,
+                aprobado: true,
+                precio_aprobado: null
+            });
+        }
+
+        showToast(`Agregado al carrito: ${cantidad}x Perfume ${fragancia} (${envase.nombre})`, 'success', 2500);
+        renderCart(carrito.length - 1);
+
+        if (inputFragancia) inputFragancia.value = '';
+        if (inputCantidad) inputCantidad.value = 1;
+        validarPreparacionPerfume();
+    }
+
+    function agregarLocionListaAlCarrito(locion) {
+        if (!locion) return;
+        if (locion.stock_unidades <= 0) {
+            showToast(`⚠️ "${locion.nombre}" está agotada.`, 'warning');
+            return;
+        }
+
+        const idx = carrito.findIndex(i => i.tipo_linea === 'perfume_listo' && i.perfumeria_lista_id === locion.id);
+        if (idx > -1) {
+            if (carrito[idx].cantidad + 1 > locion.stock_unidades) {
+                showToast(`Stock máximo alcanzado para "${locion.nombre}" (${locion.stock_unidades} u.)`, 'warning');
+                return;
+            }
+            carrito[idx].cantidad++;
+        } else {
+            carrito.push({
+                product_id: null,
+                variant_id: null,
+                tipo_linea: 'perfume_listo',
+                perfumeria_envase_id: null,
+                perfumeria_lista_id: locion.id,
+                perfume_fragancia: locion.nombre,
+                nombre: `Loción Lista: ${locion.nombre}`,
+                sku: `LOC-LISTA-${locion.id}`,
+                precio_final: parseFloat(locion.precio_venta),
+                precio_sugerido: parseFloat(locion.precio_venta),
+                precio_minimo: parseFloat(locion.precio_venta),
+                cantidad: 1,
+                max_stock: locion.stock_unidades,
+                es_obsequio: false,
+                aprobado: true,
+                precio_aprobado: null
+            });
+        }
+
+        showToast(`Agregado: "${locion.nombre}" al carrito`, 'success', 2000);
+        renderCart(carrito.length - 1);
+    }
+
     let pagosMixtos = [];
     const METODOS_DISPONIBLES = [
         { value: 'efectivo', label: '💵 Efectivo' },
@@ -1040,27 +1442,56 @@
 
     function cambiarCantidad(index, delta) {
         if (!carrito[index]) return;
-        let nueva = carrito[index].cantidad + delta;
+        let item = carrito[index];
+        let nueva = item.cantidad + delta;
         if (nueva < 1) {
             removeCartItem(index);
             return;
         }
-        if (nueva > carrito[index].max_stock) {
-            showToast(`Stock insuficiente. Solo hay ${carrito[index].max_stock} unidades disponibles.`, 'warning');
-            return;
+
+        if (item.tipo_linea === 'perfume_preparado') {
+            const envase = perfumeriaData.envases.find(e => e.id === item.perfumeria_envase_id);
+            if (envase && nueva > envase.stock_unidades) {
+                showToast(`Stock insuficiente de ${envase.nombre}. Solo hay ${envase.stock_unidades} disponibles.`, 'warning');
+                return;
+            }
+            let otrosGramos = carrito
+                .filter((it, i) => it.tipo_linea === 'perfume_preparado' && i !== index)
+                .reduce((sum, it) => sum + (it.gramos_consumo_unitario * it.cantidad), 0);
+            let gramosEste = (item.gramos_consumo_unitario || 0) * nueva;
+            if ((otrosGramos + gramosEste) > perfumeriaData.esencia_gramos) {
+                showToast(`Bolsa de esencia insuficiente para ${nueva} unidades en total.`, 'warning');
+                return;
+            }
+        } else {
+            if (nueva > item.max_stock) {
+                showToast(`Stock insuficiente. Solo hay ${item.max_stock} unidades disponibles.`, 'warning');
+                return;
+            }
         }
-        carrito[index].cantidad = nueva;
+        item.cantidad = nueva;
         renderCart(index);
     }
 
     function updateCartItem(index, qty) {
         let val = parseInt(qty);
         if (isNaN(val) || val < 1) val = 1;
-        if (val > carrito[index].max_stock) {
-            showToast(`Stock insuficiente. Máximo: ${carrito[index].max_stock}`, 'warning');
-            val = carrito[index].max_stock;
+        let item = carrito[index];
+        if (!item) return;
+
+        if (item.tipo_linea === 'perfume_preparado') {
+            const envase = perfumeriaData.envases.find(e => e.id === item.perfumeria_envase_id);
+            if (envase && val > envase.stock_unidades) {
+                showToast(`Stock insuficiente de ${envase.nombre}. Máximo: ${envase.stock_unidades}`, 'warning');
+                val = envase.stock_unidades;
+            }
+        } else {
+            if (val > item.max_stock) {
+                showToast(`Stock insuficiente. Máximo: ${item.max_stock}`, 'warning');
+                val = item.max_stock;
+            }
         }
-        carrito[index].cantidad = val;
+        item.cantidad = val;
         renderCart(index);
     }
 
@@ -1326,11 +1757,18 @@
             let precioInputState = item.es_obsequio ? 'disabled' : '';
             let isObsequioClass = item.es_obsequio ? 'text-success' : 'text-muted';
 
+            let subtituloItem = `<small class="text-muted d-block fw-normal font-monospace" style="font-size: 0.75rem;">${item.sku}</small>`;
+            if (item.tipo_linea === 'perfume_preparado') {
+                subtituloItem = `<small class="d-block fw-semibold" style="color: #8D4925; font-size: 0.75rem;"><i class="fa-solid fa-droplet me-1"></i>${item.envase_nombre} (${(item.gramos_consumo_unitario * item.cantidad).toFixed(1)}g esencia consumida)</small>`;
+            } else if (item.tipo_linea === 'perfume_listo') {
+                subtituloItem = `<small class="d-block fw-semibold text-muted" style="font-size: 0.75rem;"><i class="fa-solid fa-bottle-droplet me-1 text-primary"></i>Loción Lista (Entrega Inmediata)</small>`;
+            }
+
             li.innerHTML = `
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="fw-bold text-dark text-truncate pe-2" style="max-width: 80%;">
                         ${item.nombre}
-                        <small class="text-muted d-block fw-normal font-monospace" style="font-size: 0.75rem;">${item.sku}</small>
+                        ${subtituloItem}
                         ${item.es_obsequio ? '<span class="badge bg-success bg-opacity-10 text-success mt-1"><i class="fa-solid fa-gift me-1"></i>Obsequio ($0)</span>' : ''}
                     </div>
                     <div class="d-flex align-items-center">
@@ -1700,7 +2138,11 @@
                     variant_id: item.variant_id,
                     cantidad: item.cantidad,
                     precio_final: item.precio_final,
-                    es_obsequio: item.es_obsequio
+                    es_obsequio: item.es_obsequio,
+                    tipo_linea: item.tipo_linea || 'accesorio',
+                    perfumeria_envase_id: item.perfumeria_envase_id || null,
+                    perfumeria_lista_id: item.perfumeria_lista_id || null,
+                    perfume_fragancia: item.perfume_fragancia || null
                 })),
                 pagos: pagosPayload,
                 fecha_venta: document.getElementById('fecha_venta_input') ? document.getElementById('fecha_venta_input').value : null,

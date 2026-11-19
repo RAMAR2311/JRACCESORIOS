@@ -1,0 +1,785 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario de Perfumería & Lociones | JR ACCESORIOS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-2 px-md-4 py-3">
+
+    <!-- Encabezado de la Sección -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="sidebar-icon-box" style="background: linear-gradient(135deg, #8D4925, #C4A482); color: #FFFFFF; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fa-solid fa-spray-can-sparkles"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-0" style="color: #2C1E1A; font-family: var(--font-heading); font-size: clamp(1.4rem, 2.5vw, 1.85rem);">
+                        Inventario de Perfumería
+                    </h2>
+                    <p class="text-muted small mb-0">Control independiente de esencias a granel, envases y lociones preparadas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ url_for('sales_bp.caja_visual') }}" class="btn btn-outline-pink btn-sm d-flex align-items-center gap-2 px-3 py-2">
+                <i class="fa-solid fa-cash-register"></i>
+                <span>Ir a Caja / Facturar</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- TARJETA PRINCIPAL: BOLSA GLOBAL DE ESENCIA (GRAMOS) -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-6">
+            <div class="card card-custom h-100 p-4 border-0 position-relative overflow-hidden" style="background: linear-gradient(145deg, #FFFFFF 0%, #FAF7F2 100%); border-left: 6px solid #8D4925 !important;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="badge rounded-pill px-3 py-1 mb-2 text-uppercase fw-bold" style="background-color: rgba(141, 73, 37, 0.12); color: #8D4925; font-size: 0.75rem; letter-spacing: 0.05em;">
+                            <i class="fa-solid fa-flask-vial me-1"></i> Bolsa Global a Granel
+                        </span>
+                        <h5 class="fw-bold mb-1" style="color: #2C1E1A;">Esencia Pura de Perfumería</h5>
+                        <p class="text-muted small mb-3">Total disponible para la preparación de cualquier fragancia</p>
+                        
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="display-5 fw-bold" style="color: #8D4925; font-family: var(--font-display);">
+                                {{ "{:,.2f}".format(esencia.stock_gramos_disponibles or 0) }}
+                            </span>
+                            <span class="fs-4 fw-semibold text-muted">gramos (g)</span>
+                        </div>
+
+                        <div class="text-muted small">
+                            <i class="fa-regular fa-clock me-1"></i> Última actualización: 
+                            {{ esencia.fecha_actualizacion.strftime('%d/%m/%Y %I:%M %p') if esencia.fecha_actualizacion else 'Sin registros' }}
+                        </div>
+                    </div>
+
+                    <div class="d-none d-sm-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(141, 73, 37, 0.08); color: #8D4925; font-size: 2rem;">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                </div>
+
+                <hr class="my-3" style="border-color: rgba(141, 73, 37, 0.15);">
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-blue d-inline-flex align-items-center gap-2 px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalIngresarEsencia">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Ingresar Gramos</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalAjustarEsencia">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Ajuste Manual</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TARJETA RESUMEN: ENVASES Y LOCIONES -->
+        <div class="col-12 col-lg-6">
+            <div class="row g-3 h-100">
+                <div class="col-12 col-sm-6">
+                    <div class="card card-custom h-100 p-3 border-0" style="background: #FFFFFF; border-top: 4px solid #C4A482 !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted small fw-bold text-uppercase">Envases en Stock</span>
+                            <div class="p-2 rounded-3" style="background: rgba(196, 164, 130, 0.2); color: #8D4925;">
+                                <i class="fa-solid fa-box"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1" style="color: #2C1E1A;">{{ total_envases_stock }} <span class="fs-6 text-muted fw-normal">unidades</span></h3>
+                        <p class="text-muted small mb-0">{{ envases|length }} tamaños configurados</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <div class="card card-custom h-100 p-3 border-0" style="background: #FFFFFF; border-top: 4px solid #5D4037 !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted small fw-bold text-uppercase">Lociones Listas</span>
+                            <div class="p-2 rounded-3" style="background: rgba(93, 64, 55, 0.15); color: #5D4037;">
+                                <i class="fa-solid fa-bottle-droplet"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1" style="color: #2C1E1A;">{{ total_lociones_stock }} <span class="fs-6 text-muted fw-normal">unidades</span></h3>
+                        <p class="text-muted small mb-0">{{ lociones|length }} referencias listas</p>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card card-custom p-3 border-0" style="background: #FAF7F2;">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fa-solid fa-circle-info text-primary fs-4"></i>
+                            <div class="small text-muted">
+                                <strong>Regla de consumo automático:</strong> Al vender un perfume preparado en el POS, el sistema descuenta automáticamente 1 envase físico del tamaño seleccionado y los gramos correspondientes de la bolsa global.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑAS DEL MÓDULO -->
+    <ul class="nav nav-pills mb-4 gap-2" id="perfumeriaTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active px-3 py-2 fw-semibold rounded-pill" id="tab-envases-btn" data-bs-toggle="pill" data-bs-target="#tab-envases" type="button" role="tab">
+                <i class="fa-solid fa-prescription-bottle me-1"></i> Envases & Consumo ({{ envases|length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link px-3 py-2 fw-semibold rounded-pill" id="tab-listas-btn" data-bs-toggle="pill" data-bs-target="#tab-listas" type="button" role="tab">
+                <i class="fa-solid fa-bottle-droplet me-1"></i> Lociones Ya Preparadas ({{ lociones|length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link px-3 py-2 fw-semibold rounded-pill" id="tab-kardex-btn" data-bs-toggle="pill" data-bs-target="#tab-kardex" type="button" role="tab">
+                <i class="fa-solid fa-clipboard-list me-1"></i> Historial / Kardex de Movimientos
+            </button>
+        </li>
+    </ul>
+
+    <!-- CONTENIDO DE LAS PESTAÑAS -->
+    <div class="tab-content" id="perfumeriaTabsContent">
+
+        <!-- TAB 1: ENVASES -->
+        <div class="tab-pane fade show active" id="tab-envases" role="tabpanel">
+            <div class="card card-custom p-3 p-md-4">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #2C1E1A;">Tipos de Envase y Regla de Descuento</h5>
+                        <p class="text-muted small mb-0">Cada envase descuenta sus gramos de esencia al venderse en caja</p>
+                    </div>
+                    <button type="button" class="btn btn-blue btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalNuevoEnvase">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nuevo Tipo de Envase</span>
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Envase</th>
+                                <th class="text-center">Capacidad</th>
+                                <th class="text-center">Consumo de Esencia</th>
+                                <th class="text-center">Stock Actual</th>
+                                <th class="text-end">Precio de Venta</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for env in envases %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(141, 73, 37, 0.1); color: #8D4925;">
+                                            <i class="fa-solid fa-prescription-bottle"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold" style="color: #2C1E1A;">{{ env.nombre }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border px-2 py-1">{{ env.capacidad_ml }} ml</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill px-2 py-1" style="background: rgba(141, 73, 37, 0.12); color: #8D4925; font-weight: 700;">
+                                        <i class="fa-solid fa-droplet me-1"></i>{{ "{:,.2f}".format(env.gramos_consumo) }} g
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    {% if env.stock_unidades <= 0 %}
+                                    <span class="badge bg-danger rounded-pill px-2 py-1">0 u. (Agotado)</span>
+                                    {% elif env.stock_unidades <= 5 %}
+                                    <span class="badge bg-warning text-dark rounded-pill px-2 py-1">{{ env.stock_unidades }} u. (Bajo)</span>
+                                    {% else %}
+                                    <span class="badge bg-success rounded-pill px-2 py-1">{{ env.stock_unidades }} u.</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-bold" style="color: #8D4925;">
+                                    $ {{ "{:,.0f}".format(env.precio_venta) }}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-primary" title="Sumar Stock" data-bs-toggle="modal" data-bs-target="#modalSumarStockEnvase{{ env.id }}">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" title="Ajustar Stock" data-bs-toggle="modal" data-bs-target="#modalAjustarStockEnvase{{ env.id }}">
+                                            <i class="fa-solid fa-sliders"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-dark" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditarEnvase{{ env.id }}">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminarEnvase{{ env.id }}">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- MODAL SUMAR STOCK ENVASE -->
+                                    <div class="modal fade" id="modalSumarStockEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.sumar_stock_envase', id=env.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Sumar Stock: {{ env.nombre }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="text-muted small">Stock actual: <strong>{{ env.stock_unidades }} unidades</strong></p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Cantidad de unidades compradas / recibidas:</label>
+                                                            <input type="number" name="cantidad" class="form-control" min="1" step="1" required placeholder="Ej. 50">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Motivo / Proveedor (Opcional):</label>
+                                                            <input type="text" name="motivo" class="form-control" placeholder="Ej. Compra de frascos / Factura #102">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-blue">Sumar al Stock</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MODAL AJUSTAR STOCK ENVASE -->
+                                    <div class="modal fade" id="modalAjustarStockEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.ajustar_stock_envase', id=env.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Ajuste Físico: {{ env.nombre }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Nuevo stock físico en mostrador:</label>
+                                                            <input type="number" name="nuevo_stock" class="form-control" min="0" step="1" value="{{ env.stock_unidades }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Motivo del ajuste (Obligatorio):</label>
+                                                            <input type="text" name="motivo" class="form-control" required placeholder="Ej. Conteo físico, frasco roto, etc.">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-blue">Guardar Ajuste</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MODAL EDITAR ENVASE -->
+                                    <div class="modal fade" id="modalEditarEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.editar_envase', id=env.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Editar Envase: {{ env.nombre }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Nombre descriptivo:</label>
+                                                            <input type="text" name="nombre" class="form-control" value="{{ env.nombre }}" required>
+                                                        </div>
+                                                        <div class="row g-2 mb-3">
+                                                            <div class="col-6">
+                                                                <label class="form-label fw-bold small">Capacidad (ml):</label>
+                                                                <input type="number" name="capacidad_ml" class="form-control" value="{{ env.capacidad_ml }}" min="1" required>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <label class="form-label fw-bold small">Gramos que consume:</label>
+                                                                <input type="number" name="gramos_consumo" class="form-control" value="{{ env.gramos_consumo }}" step="0.1" min="0.1" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Precio de Venta (COP):</label>
+                                                            <input type="number" name="precio_venta" class="form-control" value="{{ env.precio_venta|round|int }}" min="0" step="100" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-blue">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MODAL ELIMINAR ENVASE -->
+                                    <div class="modal fade" id="modalEliminarEnvase{{ env.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.eliminar_envase', id=env.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold text-danger">Deshabilitar Envase</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>¿Estás seguro de deshabilitar el envase <strong>"{{ env.nombre }}"</strong>? Ya no aparecerá disponible para ventas en la caja registradora.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-danger">Sí, Deshabilitar</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    No hay envases configurados. Haz clic en "Nuevo Tipo de Envase".
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: LOCIONES LISTAS -->
+        <div class="tab-pane fade" id="tab-listas" role="tabpanel">
+            <div class="card card-custom p-3 p-md-4">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #2C1E1A;">Lociones Ya Preparadas (Entrega Inmediata)</h5>
+                        <p class="text-muted small mb-0">Productos terminados por unidad simple (no descuentan envases ni gramos al venderse)</p>
+                    </div>
+                    <button type="button" class="btn btn-blue btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalNuevaLocion">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nueva Loción Lista</span>
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nombre de la Referencia</th>
+                                <th class="text-center">Stock Actual</th>
+                                <th class="text-end">Precio de Venta</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loc in lociones %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(93, 64, 55, 0.12); color: #5D4037;">
+                                            <i class="fa-solid fa-bottle-droplet"></i>
+                                        </div>
+                                        <span class="fw-bold" style="color: #2C1E1A;">{{ loc.nombre }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    {% if loc.stock_unidades <= 0 %}
+                                    <span class="badge bg-danger rounded-pill px-2 py-1">0 u. (Agotado)</span>
+                                    {% elif loc.stock_unidades <= 2 %}
+                                    <span class="badge bg-warning text-dark rounded-pill px-2 py-1">{{ loc.stock_unidades }} u. (Bajo)</span>
+                                    {% else %}
+                                    <span class="badge bg-success rounded-pill px-2 py-1">{{ loc.stock_unidades }} u.</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-bold" style="color: #8D4925;">
+                                    $ {{ "{:,.0f}".format(loc.precio_venta) }}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-primary" title="Sumar Stock" data-bs-toggle="modal" data-bs-target="#modalSumarStockLocion{{ loc.id }}">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" title="Ajustar Stock" data-bs-toggle="modal" data-bs-target="#modalAjustarStockLocion{{ loc.id }}">
+                                            <i class="fa-solid fa-sliders"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-dark" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditarLocion{{ loc.id }}">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminarLocion{{ loc.id }}">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- MODAL SUMAR STOCK LOCION -->
+                                    <div class="modal fade" id="modalSumarStockLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.sumar_stock_locion', id=loc.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Sumar Stock: {{ loc.nombre }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="text-muted small">Stock actual: <strong>{{ loc.stock_unidades }} unidades</strong></p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Cantidad de unidades a sumar:</label>
+                                                            <input type="number" name="cantidad" class="form-control" min="1" step="1" required placeholder="Ej. 3">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Motivo (Opcional):</label>
+                                                            <input type="text" name="motivo" class="form-control" placeholder="Ej. Lociones terminadas preparadas previamente">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-blue">Sumar al Stock</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MODAL AJUSTAR STOCK LOCION -->
+                                    <div class="modal fade" id="modalAjustarStockLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.ajustar_stock_locion', id=loc.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Ajuste Físico: {{ loc.nombre }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Nuevo stock físico disponible:</label>
+                                                            <input type="number" name="nuevo_stock" class="form-control" min="0" step="1" value="{{ loc.stock_unidades }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Motivo del ajuste (Obligatorio):</label>
+                                                            <input type="text" name="motivo" class="form-control" required placeholder="Ej. Conteo físico en vitrina">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-blue">Guardar Ajuste</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MODAL EDITAR LOCION -->
+                                    <div class="modal fade" id="modalEditarLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.editar_locion_lista', id=loc.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold" style="color: #2C1E1A;">Editar Loción: {{ loc.nombre }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Nombre de la Referencia:</label>
+                                                            <input type="text" name="nombre" class="form-control" value="{{ loc.nombre }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small">Precio de Venta (COP):</label>
+                                                            <input type="number" name="precio_venta" class="form-control" value="{{ loc.precio_venta|round|int }}" min="0" step="100" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-blue">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MODAL ELIMINAR LOCION -->
+                                    <div class="modal fade" id="modalEliminarLocion{{ loc.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start">
+                                                <form action="{{ url_for('perfumeria_bp.eliminar_locion', id=loc.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold text-danger">Deshabilitar Loción</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>¿Estás seguro de deshabilitar la loción <strong>"{{ loc.nombre }}"</strong>?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-danger">Sí, Deshabilitar</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    No hay lociones listas configuradas. Haz clic en "Nueva Loción Lista".
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: KARDEX / AUDITORÍA DE MOVIMIENTOS -->
+        <div class="tab-pane fade" id="tab-kardex" role="tabpanel">
+            <div class="card card-custom p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #2C1E1A;">Historial / Kardex de Perfumería</h5>
+                        <p class="text-muted small mb-0">Registro inalterable de ingresos manuales, ventas en caja y ajustes</p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                        <thead>
+                            <tr>
+                                <th>Fecha / Hora</th>
+                                <th>Insumo</th>
+                                <th>Tipo de Movimiento</th>
+                                <th class="text-center">Cantidad Movida</th>
+                                <th class="text-center">Saldo Anterior</th>
+                                <th class="text-center">Nuevo Saldo</th>
+                                <th>Usuario</th>
+                                <th>Detalle / Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in movimientos %}
+                            <tr>
+                                <td class="text-nowrap text-muted small">
+                                    {{ m.created_at.strftime('%d/%m/%Y %I:%M %p') if m.created_at else '-' }}
+                                </td>
+                                <td>
+                                    {% if m.tipo_insumo == 'esencia' %}
+                                    <span class="badge bg-primary text-white"><i class="fa-solid fa-droplet me-1"></i> Esencia (g)</span>
+                                    {% elif m.tipo_insumo == 'envase' %}
+                                    <span class="badge bg-secondary text-white"><i class="fa-solid fa-prescription-bottle me-1"></i> Envase</span>
+                                    {% elif m.tipo_insumo == 'locion_lista' %}
+                                    <span class="badge bg-dark text-white"><i class="fa-solid fa-bottle-droplet me-1"></i> Loción Lista</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if m.tipo_movimiento == 'entrada_manual' %}
+                                    <span class="text-success fw-bold"><i class="fa-solid fa-arrow-down-long me-1"></i> Entrada Manual</span>
+                                    {% elif m.tipo_movimiento == 'salida_venta' %}
+                                    <span class="text-danger fw-bold"><i class="fa-solid fa-arrow-up-long me-1"></i> Salida por Venta</span>
+                                    {% if m.sale_id %}
+                                    <a href="{{ url_for('sales_bp.imprimir_ticket', sale_id=m.sale_id) }}" target="_blank" class="badge bg-light text-primary border text-decoration-none">#{{ m.sale_id }}</a>
+                                    {% endif %}
+                                    {% elif m.tipo_movimiento == 'cancelacion_venta' %}
+                                    <span class="text-warning text-dark fw-bold"><i class="fa-solid fa-rotate-left me-1"></i> Venta Anulada</span>
+                                    {% else %}
+                                    <span class="text-info text-dark fw-bold"><i class="fa-solid fa-sliders me-1"></i> Ajuste Físico</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center fw-bold {% if m.cantidad > 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ "{:+,.2f}".format(m.cantidad) }}
+                                </td>
+                                <td class="text-center text-muted">
+                                    {{ "{:,.2f}".format(m.saldo_anterior) }}
+                                </td>
+                                <td class="text-center fw-bold" style="color: #2C1E1A;">
+                                    {{ "{:,.2f}".format(m.saldo_nuevo) }}
+                                </td>
+                                <td>
+                                    <span class="small text-muted">{{ m.usuario.nombre if m.usuario else 'Sistema' }}</span>
+                                </td>
+                                <td>
+                                    <span class="small text-muted">{{ m.motivo or '-' }}</span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    No hay registros de movimientos en el Kardex todavía.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL INGRESAR ESENCIA (GRAMOS) -->
+<div class="modal fade" id="modalIngresarEsencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('perfumeria_bp.ingresar_esencia') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: #2C1E1A;">
+                        <i class="fa-solid fa-flask-vial text-primary me-2"></i>Ingresar Gramos de Esencia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        Suma gramos de esencia a la bolsa global. El total acumulado estará disponible para preparar envases de cualquier tamaño en caja.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Cantidad a Ingresar en Gramos (g):</label>
+                        <div class="input-group">
+                            <input type="number" name="gramos" class="form-control form-control-lg fw-bold" step="0.01" min="0.01" placeholder="Ej. 1000.00" required>
+                            <span class="input-group-text fw-bold">gramos</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Motivo / Proveedor / Factura (Opcional):</label>
+                        <input type="text" name="motivo" class="form-control" placeholder="Ej. Compra 2 kg esencia a granel / Factura #892">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue px-4">Registrar Ingreso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL AJUSTAR ESENCIA (GRAMOS) -->
+<div class="modal fade" id="modalAjustarEsencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('perfumeria_bp.ajustar_esencia') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: #2C1E1A;">
+                        <i class="fa-solid fa-sliders text-secondary me-2"></i>Ajuste Manual de Esencia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        Permite sincronizar el stock del sistema con el pesaje real de la bolsa física.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nuevo Total Real en Gramos (g):</label>
+                        <div class="input-group">
+                            <input type="number" name="nuevo_stock" class="form-control form-control-lg fw-bold" step="0.01" min="0" value="{{ esencia.stock_gramos_disponibles }}" required>
+                            <span class="input-group-text fw-bold">gramos</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Motivo del Ajuste (Obligatorio):</label>
+                        <input type="text" name="motivo" class="form-control" required placeholder="Ej. Pesaje físico de inicio de mes, merma, derrame, etc.">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue px-4">Guardar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL NUEVO TIPO DE ENVASE -->
+<div class="modal fade" id="modalNuevoEnvase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('perfumeria_bp.nuevo_envase') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: #2C1E1A;">
+                        <i class="fa-solid fa-prescription-bottle text-primary me-2"></i>Crear Nuevo Tipo de Envase
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nombre del Envase:</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej. Envase 50 ml Cuadrado" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Capacidad (ml):</label>
+                            <input type="number" name="capacidad_ml" class="form-control" min="1" placeholder="Ej. 50" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Gramos que consume:</label>
+                            <input type="number" name="gramos_consumo" class="form-control" step="0.1" min="0.1" placeholder="Ej. 15.0" required>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Stock Inicial (Unidades):</label>
+                            <input type="number" name="stock_unidades" class="form-control" min="0" value="0">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Precio Venta (COP):</label>
+                            <input type="number" name="precio_venta" class="form-control" min="0" step="100" placeholder="Ej. 45000" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue px-4">Crear Envase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL NUEVA LOCIÓN LISTA -->
+<div class="modal fade" id="modalNuevaLocion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('perfumeria_bp.nueva_locion_lista') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: #2C1E1A;">
+                        <i class="fa-solid fa-bottle-droplet text-primary me-2"></i>Nueva Loción Lista
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        Loción ya preparada lista para despacho rápido por unidad.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nombre de la Fragancia / Referencia:</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej. Sauvage Dior 100ml Listo" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Cantidad en Stock:</label>
+                            <input type="number" name="stock_unidades" class="form-control" min="0" value="1" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Precio de Venta (COP):</label>
+                            <input type="number" name="precio_venta" class="form-control" min="0" step="100" placeholder="Ej. 95000" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-blue px-4">Crear Loción</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

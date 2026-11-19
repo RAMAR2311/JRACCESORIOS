@@ -29,6 +29,11 @@ def main():
             ("clientes", "local_numero", "VARCHAR(50)"),
             ("clientes", "notas", "TEXT"),
             ("price_approvals", "sale_id", "INTEGER"),
+            ("sale_details", "tipo_linea", "VARCHAR(30) DEFAULT 'accesorio'"),
+            ("sale_details", "perfumeria_envase_id", "INTEGER"),
+            ("sale_details", "perfumeria_lista_id", "INTEGER"),
+            ("sale_details", "perfume_fragancia", "VARCHAR(200)"),
+            ("sale_details", "gramos_totales", "NUMERIC(10, 2)"),
         ]
 
         for tabla, col, tipo in columnas_pg:
@@ -100,6 +105,27 @@ def main():
         except Exception as e:
             db.session.rollback()
             print(f"[Aviso vinculación aprobaciones] -> {e}")
+
+        # 6. Inicialización de Perfumería (Bolsa global y envases estándar si está vacía)
+        try:
+            from models import PerfumeriaEsenciaGlobal, PerfumeriaEnvase
+            esencia = PerfumeriaEsenciaGlobal.query.first()
+            if not esencia:
+                esencia = PerfumeriaEsenciaGlobal(stock_gramos_disponibles=0.0)
+                db.session.add(esencia)
+
+            if PerfumeriaEnvase.query.count() == 0:
+                envases_default = [
+                    PerfumeriaEnvase(nombre="Envase 10 ml", capacidad_ml=10, gramos_consumo=4.0, stock_unidades=0, precio_venta=15000),
+                    PerfumeriaEnvase(nombre="Envase 30 ml", capacidad_ml=30, gramos_consumo=10.0, stock_unidades=0, precio_venta=35000),
+                    PerfumeriaEnvase(nombre="Envase 60 ml", capacidad_ml=60, gramos_consumo=20.0, stock_unidades=0, precio_venta=60000),
+                    PerfumeriaEnvase(nombre="Envase 100 ml", capacidad_ml=100, gramos_consumo=40.0, stock_unidades=0, precio_venta=95000),
+                ]
+                db.session.add_all(envases_default)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"[Aviso inicialización perfumería] -> {e}")
 
         print("[OK] Base de datos actualizada y todas las columnas sincronizadas correctamente.")
 

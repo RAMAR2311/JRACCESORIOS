@@ -174,7 +174,33 @@ class SaleDetail(db.Model):
     nombre_manual = db.Column(db.String(200), nullable=True)
     precio_costo_manual = db.Column(db.Numeric(10, 2), nullable=True)
 
+    # Campos para módulo de Perfumería
+    tipo_linea = db.Column(db.String(30), default='accesorio', nullable=False) # 'accesorio', 'perfume_preparado', 'perfume_listo'
+    perfumeria_envase_id = db.Column(db.Integer, db.ForeignKey('perfumeria_envases.id'), nullable=True)
+    perfumeria_lista_id = db.Column(db.Integer, db.ForeignKey('perfumeria_listas.id'), nullable=True)
+    perfume_fragancia = db.Column(db.String(200), nullable=True)
+    gramos_totales = db.Column(db.Numeric(10, 2), nullable=True)
+
     variante = db.relationship('ProductVariant', backref='ventas_rel', lazy=True)
+    envase = db.relationship('PerfumeriaEnvase', foreign_keys=[perfumeria_envase_id], lazy=True)
+    locion_lista = db.relationship('PerfumeriaLista', foreign_keys=[perfumeria_lista_id], lazy=True)
+
+    @property
+    def nombre_display(self):
+        if self.tipo_linea == 'perfume_preparado':
+            env_nombre = self.envase.nombre if self.envase else 'Envase'
+            frag = self.perfume_fragancia or 'Fragancia'
+            return f"Perfume: {frag} ({env_nombre})"
+        elif self.tipo_linea == 'perfume_listo':
+            loc_nombre = self.locion_lista.nombre if self.locion_lista else 'Loción'
+            return f"Loción Lista: {loc_nombre}"
+        elif self.nombre_manual:
+            return self.nombre_manual
+        elif self.variante and self.producto:
+            return f"{self.producto.nombre} ({self.variante.nombre_variante})"
+        elif self.producto:
+            return self.producto.nombre
+        return "Producto"
 
     def __init__(self, **kwargs):
         super(SaleDetail, self).__init__(**kwargs)
@@ -504,5 +530,118 @@ class PriceApproval(db.Model):
 
     def __init__(self, **kwargs):
         super(PriceApproval, self).__init__(**kwargs)
+
+
+# =====================================================================
+# MÓDULO DE PERFUMERÍA & LOCIONES (INVENTARIO INDEPENDIENTE)
+# =====================================================================
+
+class PerfumeriaEsenciaGlobal(db.Model):
+    """
+    Controla la bolsa global de gramos de esencia (a granel).
+    Registro único para control del stock total de gramos disponibles.
+    """
+    __tablename__ = 'perfumeria_esencia_global'
+
+    id = db.Column(db.Integer, primary_key=True)
+    stock_gramos_disponibles = db.Column(db.Numeric(12, 2), nullable=False, default=0.0)
+    fecha_actualizacion = db.Column(db.DateTime, default=obtener_hora_bogota, onupdate=obtener_hora_bogota)
+
+    def __init__(self, **kwargs):
+        super(PerfumeriaEsenciaGlobal, self).__init__(**kwargs)
+
+    @classmethod
+    def obtener_registro(cls):
+        registro = cls.query.first()
+        if not registro:
+            registro = cls(stock_gramos_disponibles=0.0)
+            db.session.add(registro)
+            db.session.commit()
+        return registro
+
+
+class PerfumeriaEnvase(db.Model):
+    """
+    Controla los envases físicos por capacidad y unidades en stock.
+    Cada envase define cuántos gramos consume de la bolsa global al venderse.
+    """
+    __tablename__ = 'perfumeria_envases'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False) # Ej: "Envase 10 ml", "Envase 30 ml"
+    capacidad_ml = db.Column(db.Integer, nullable=False) # 10, 30, 60, 100
+    gramos_consumo = db.Column(db.Numeric(8, 2), nullable=False, default=0.0) # Ej: 4, 10, 20, 40
+    stock_unidades = db.Column(db.Integer, nullable=False, default=0)
+    precio_venta = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
+    activo = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=obtener_hora_bogota)
+
+    def __init__(self, **kwargs):
+        super(PerfumeriaEnvase, self).__init__(**kwargs)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nombre': self.nombre,
+            'capacidad_ml': self.capacidad_ml,
+            'gramos_consumo': float(self.gramos_consumo or 0),
+            'stock_unidades': self.stock_unidades or 0,
+            'precio_venta': float(self.precio_venta or 0),
+            'activo': self.activo
+        }
+
+
+class PerfumeriaLista(db.Model):
+    """
+    Lociones ya preparadas (producto terminado).
+    Se manejan por unidad simple, no descuentan gramos ni envases.
+    """
+    __tablename__ = 'perfumeria_listas'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(150), nullable=False)
+    stock_unidades = db.Column(db.Integer, nullable=False, default=0)
+    precio_venta = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
+    activo = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=obtener_hora_bogota)
+
+    def __init__(self, **kwargs):
+        super(PerfumeriaLista, self).__init__(**kwargs)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nombre': self.nombre,
+            'stock_unidades': self.stock_unidades or 0,
+            'precio_venta': float(self.precio_venta or 0),
+            'activo': self.activo
+        }
+
+
+class PerfumeriaMovimiento(db.Model):
+    """
+    Kardex / Auditoría de movimientos de perfumería.
+    Registra entradas manuales (compras de gramos/envases/lociones) y salidas por venta.
+    """
+    __tablename__ = 'perfumeria_movimientos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tipo_insumo = db.Column(db.String(30), nullable=False) # 'esencia', 'envase', 'locion_lista'
+    referencia_id = db.Column(db.Integer, nullable=True) # ID del envase o de la loción lista
+    tipo_movimiento = db.Column(db.String(50), nullable=False) # 'entrada_manual', 'ajuste', 'salida_venta', 'cancelacion_venta'
+    cantidad = db.Column(db.Numeric(12, 2), nullable=False) # Cantidad movida (+/-)
+    saldo_anterior = db.Column(db.Numeric(12, 2), nullable=False)
+    saldo_nuevo = db.Column(db.Numeric(12, 2), nullable=False)
+    motivo = db.Column(db.String(255), nullable=True)
+    sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=obtener_hora_bogota)
+
+    usuario = db.relationship('User', foreign_keys=[user_id], lazy=True)
+    venta = db.relationship('Sale', foreign_keys=[sale_id], lazy=True)
+
+    def __init__(self, **kwargs):
+        super(PerfumeriaMovimiento, self).__init__(**kwargs)
+
 
 

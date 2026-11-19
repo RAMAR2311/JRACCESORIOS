@@ -412,7 +412,9 @@
             <tr>
                 <td class="col-qty">{{ detalle.cantidad_vendida }}</td>
                 <td class="col-prod">
-                    {% if detalle.nombre_manual %}
+                    {% if detalle.tipo_linea == 'perfume_preparado' or detalle.tipo_linea == 'perfume_listo' %}
+                        {{ detalle.nombre_display }}
+                    {% elif detalle.nombre_manual %}
                         {{ detalle.nombre_manual[:40] }}{% if detalle.nombre_manual|length > 40 %}...{% endif %}
                     {% else %}
                         {{ detalle.producto.nombre[:40] }}{% if detalle.producto.nombre|length > 40 %}...{% endif %}
@@ -609,7 +611,7 @@
 ------------------------------------------
 *DETALLE DE COMPRA:*
 {% for detalle in venta.detalles %}
-- {{ detalle.cantidad_vendida }}x {% if detalle.nombre_manual %}{{ detalle.nombre_manual }}{% else %}{{ detalle.producto.nombre }}{% if detalle.variante %} ({{ detalle.variante.nombre_variante }}){% endif %}{% endif %} : {% if detalle.precio_venta_final == 0 %}OBSEQUIO{% else %}${{ ((detalle.precio_venta_final * detalle.cantidad_vendida)|cop) }}{% endif %}
+- {{ detalle.cantidad_vendida }}x {{ detalle.nombre_display }} : {% if detalle.precio_venta_final == 0 %}OBSEQUIO{% else %}${{ ((detalle.precio_venta_final * detalle.cantidad_vendida)|cop) }}{% endif %}
 {% endfor %}
 ------------------------------------------
 *TOTAL: ${{ (venta.monto_total)|cop }}*
