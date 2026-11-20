@@ -243,6 +243,125 @@
         color: #dc3545 !important;
     }
 
+    /* Estado activo / seleccionado en tarjetas de producto */
+    .product-card.is-selected {
+        border: 2px solid var(--brand-primary, #8D4925) !important;
+        background-color: rgba(141, 73, 37, 0.06) !important;
+        box-shadow: 0 0 0 3px rgba(141, 73, 37, 0.14), 0 6px 16px rgba(141, 73, 37, 0.12) !important;
+    }
+
+    .product-cart-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 4;
+        background: var(--brand-primary, #8D4925);
+        color: #FFFFFF;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Pestañas y tarjetas de Perfumería con paleta de marca */
+    #posPerfumeriaTabs .nav-link {
+        color: #8D4925;
+        background: rgba(141, 73, 37, 0.08);
+        border: 1px solid rgba(141, 73, 37, 0.2);
+    }
+
+    #posPerfumeriaTabs .nav-link.active {
+        background: #2C1E1A !important;
+        color: #FFFFFF !important;
+        border-color: #2C1E1A !important;
+    }
+
+    .envase-select-card {
+        position: relative;
+        border-radius: 12px !important;
+        background: #FFFFFF;
+        border: 2px solid #E5E7EB !important;
+    }
+
+    .envase-select-card:hover {
+        border-color: rgba(141, 73, 37, 0.45) !important;
+        transform: translateY(-2px);
+    }
+
+    .envase-select-card.is-selected {
+        border-color: #8D4925 !important;
+        background: rgba(141, 73, 37, 0.06) !important;
+        box-shadow: 0 0 0 3px rgba(141, 73, 37, 0.14), 0 6px 14px rgba(141, 73, 37, 0.14) !important;
+    }
+
+    .envase-check-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #8D4925;
+        color: #FFFFFF;
+        font-size: 0.65rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Segmented Control de Modalidad de Perfumería */
+    .perf-mode-btn {
+        border: 2px solid #E5E7EB;
+        background: #FFFFFF;
+        color: #4B5563;
+        border-radius: 12px;
+        padding: 10px 12px;
+        text-align: left;
+        transition: all 0.2s ease;
+    }
+
+    .perf-mode-btn:hover {
+        border-color: rgba(141, 73, 37, 0.4);
+    }
+
+    .perf-mode-btn.active-envase {
+        background: #2C1E1A;
+        border-color: #2C1E1A;
+        color: #FFFFFF;
+        box-shadow: 0 4px 12px rgba(44, 30, 26, 0.2);
+    }
+
+    .perf-mode-btn.active-recarga {
+        background: #15803D;
+        border-color: #15803D;
+        color: #FFFFFF;
+        box-shadow: 0 4px 12px rgba(21, 128, 61, 0.22);
+    }
+
+    .perf-mode-btn .mode-sub {
+        font-size: 0.72rem;
+        opacity: 0.85;
+        display: block;
+    }
+
+    .fragancia-chip {
+        border: 1px solid rgba(141, 73, 37, 0.28);
+        background: #FFFBF7;
+        color: #6F4E37;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .fragancia-chip:hover, .fragancia-chip:active {
+        background: #8D4925;
+        color: #FFFFFF;
+        border-color: #8D4925;
+    }
+
     /* Barra flotante inferior de cobro rápido para móviles */
     .mobile-cart-bar {
         display: none;
@@ -250,16 +369,17 @@
         bottom: 0;
         left: 0;
         right: 0;
-        z-index: 1050;
+        z-index: 1030;
         background: #FFFFFF;
         border-top: 2px solid #E5E7EB;
         box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.12);
         padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
         transition: transform 0.25s ease-in-out;
     }
 
     @media (max-width: 991.98px) {
-        .mobile-cart-bar.active {
+        .mobile-cart-bar {
             display: flex !important;
             align-items: center;
             justify-content: space-between;
@@ -278,7 +398,7 @@
 
         /* Espacio para que el contenido no quede oculto detrás de la barra fija en móvil */
         body {
-            padding-bottom: 95px !important;
+            padding-bottom: 110px !important;
         }
     }
 </style>
@@ -349,10 +469,14 @@
             <div class="col-6 col-md-4 col-xl-3 product-card-container" data-name="{{ p.nombre }}"
                 data-sku="{{ p.sku }}" data-variants='{{ vars_data|tojson|safe }}'>
                 <div class="card h-100 border shadow-sm product-card {{ 'out-of-stock cursor-not-allowed' if total_stock <= 0 else 'cursor-pointer' }}"
+                    data-product-id="{{ p.id }}"
                     data-product='{{ {"id": p.id, "nombre": p.nombre, "sku": p.sku, "precio_sugerido": p.precio_sugerido or 0, "precio_minimo": p.precio_minimo or 0, "cantidad_stock": total_stock, "tipo_inventario": p.tipo_inventario}|tojson|safe }}'
-                    data-variants='{{ vars_data|tojson|safe }}' onclick="handleProductClick(this)">
+                    data-variants='{{ vars_data|tojson|safe }}'>
 
                     <div class="product-img-box">
+                        <span class="badge rounded-pill product-cart-badge d-none">
+                            <i class="fa-solid fa-check me-1"></i><span class="qty-val">0</span>
+                        </span>
                         {% if p.imagen %}
                         <img src="{{ url_for('static', filename='uploads/' + p.imagen) }}" alt="{{ p.nombre }}"
                             loading="lazy"
@@ -479,32 +603,54 @@
                 <!-- SUB-PESTAÑA 1: PREPARAR LOCIÓN A MEDIDA -->
                 <div class="tab-pane fade show active" id="pos-tab-prep" role="tabpanel">
                     <div class="card card-custom p-3 p-md-4 border shadow-sm">
-                        <!-- Paso 1: Seleccionar Envase -->
+                        <!-- Paso 1: Segmented Control Modalidad de Venta -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-uppercase text-muted" style="letter-spacing: 0.05em;">
-                                <span class="badge bg-dark rounded-circle me-1" style="font-size: 0.7rem;">1</span> Selecciona el Tamaño de Envase:
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-2" style="letter-spacing: 0.05em;">
+                                <span class="badge bg-dark rounded-circle me-1" style="font-size: 0.7rem;">1</span> Modalidad de Venta:
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button type="button" id="btnModoConEnvase" class="w-100 perf-mode-btn active-envase" onclick="setModoPerfumeria(false)">
+                                        <div class="fw-bold" style="font-size: 0.9rem;">🧴 Venta con Envase</div>
+                                        <span class="mode-sub">Incluye frasco nuevo + esencia</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" id="btnModoRecarga" class="w-100 perf-mode-btn" onclick="setModoPerfumeria(true)">
+                                        <div class="fw-bold" style="font-size: 0.9rem;">♻️ Solo Recarga</div>
+                                        <span class="mode-sub">Cliente trae su frasco</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Checkbox oculto para mantener compatibilidad total con la lógica existente -->
+                            <input class="d-none" type="checkbox" id="prep_es_recarga_check" onchange="toggleEsRecarga()">
+                        </div>
+
+                        <!-- Paso 2: Seleccionar Envase (Dinámico según modalidad) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-2" style="letter-spacing: 0.05em;">
+                                <span class="badge bg-dark rounded-circle me-1" style="font-size: 0.7rem;">2</span> Selecciona el Tamaño:
                             </label>
                             <div class="row g-2" id="gridEnvasesPos">
                                 {% for env in perfumeria_envases %}
                                 <div class="col-6 col-sm-3">
-                                    <div class="card h-100 p-2 text-center border envase-select-card cursor-pointer transition-all" 
+                                    <div class="card h-100 p-2.5 text-center envase-select-card cursor-pointer transition-all" 
                                          id="envase_card_{{ env.id }}"
                                          data-envase='{{ env.to_dict()|tojson|safe }}'
-                                         onclick="seleccionarEnvase({{ env.id }})"
-                                         style="border-radius: 12px; background: #FFFFFF; border-width: 2px !important;">
+                                         onclick="seleccionarEnvase({{ env.id }})">
+                                        <span class="envase-check-badge d-none"><i class="fa-solid fa-check"></i></span>
                                         <div class="py-1">
-                                            <i class="fa-solid fa-prescription-bottle fs-3 mb-1" style="color: #8D4925;"></i>
-                                            <h6 class="fw-bold mb-0" style="color: #2C1E1A; font-size: 0.9rem;">{{ env.nombre }}</h6>
-                                            <span class="badge bg-light text-muted border px-2 py-0.5 rounded-pill small mb-1" style="font-size: 0.7rem;">
-                                                Consume {{ "{:,.0f}".format(env.gramos_consumo) }}g
-                                            </span>
+                                            <i class="fa-solid fa-prescription-bottle fs-4 mb-1" style="color: #8D4925;"></i>
+                                            <h6 class="fw-bold mb-1" style="color: #2C1E1A; font-size: 0.9rem;">{{ env.nombre }}</h6>
+                                            <div class="fw-bolder mb-1 envase-price-display" style="color: #8D4925; font-size: 1.08rem;">$ {{ "{:,.0f}".format(env.precio_venta) }}</div>
                                         </div>
-                                        <div class="mt-auto pt-1 border-top">
-                                            <div class="fw-bold text-brand-black" style="font-size: 0.88rem;">$ {{ "{:,.0f}".format(env.precio_venta) }}</div>
-                                            <div class="text-primary small fw-semibold" style="font-size: 0.72rem;">Recarga: $ {{ "{:,.0f}".format(env.precio_recarga or 0) }}</div>
-                                            <span class="small {% if env.stock_unidades <= 0 %}text-danger fw-bold{% elif env.stock_unidades <= 3 %}text-warning-emphasis{% else %}text-muted{% endif %}" style="font-size: 0.7rem;">
-                                                {{ env.stock_unidades }} disp.
-                                            </span>
+                                        <div class="mt-auto pt-1 border-top border-light-subtle envase-meta-display" style="font-size: 0.72rem;">
+                                            <span class="text-muted">Consume {{ "{:,.0f}".format(env.gramos_consumo) }}g</span> • 
+                                            {% if env.stock_unidades <= 0 %}
+                                                <span class="badge bg-danger bg-opacity-10 text-danger px-1.5 py-0">Agotado</span>
+                                            {% else %}
+                                                <span class="text-muted">{{ env.stock_unidades }} frascos disp.</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -516,17 +662,24 @@
                             </div>
                         </div>
 
-                        <!-- Paso 2: Fragancia y Cantidad -->
+                        <!-- Paso 3: Fragancia con Chips Rápidos + Cantidad -->
                         <div class="row g-3 mb-3">
                             <div class="col-12 col-md-8">
                                 <label class="form-label fw-bold small text-uppercase text-muted" style="letter-spacing: 0.05em;">
-                                    <span class="badge bg-dark rounded-circle me-1" style="font-size: 0.7rem;">2</span> Referencia de la Fragancia / Nombre:
+                                    <span class="badge bg-dark rounded-circle me-1" style="font-size: 0.7rem;">3</span> Referencia de la Fragancia:
                                 </label>
-                                <div class="input-group">
+                                <div class="input-group mb-2">
                                     <span class="input-group-text bg-light text-muted border"><i class="fa-solid fa-pen-nib"></i></span>
-                                    <input type="text" id="prep_fragancia_input" class="form-control" placeholder="Ej. Sauvage Dior, Good Girl, Invictus, etc." oninput="validarPreparacionPerfume()">
+                                    <input type="text" id="prep_fragancia_input" class="form-control" placeholder="Ej. Sauvage Dior, Good Girl, Invictus..." oninput="validarPreparacionPerfume()">
                                 </div>
-                                <small class="text-muted" style="font-size: 0.72rem;">Referencia descriptiva que saldrá impresa en el ticket y recibo digital.</small>
+                                <div class="d-flex flex-wrap gap-1.5">
+                                    <button type="button" class="fragancia-chip" onclick="seleccionarFraganciaChip('Sauvage')">Sauvage</button>
+                                    <button type="button" class="fragancia-chip" onclick="seleccionarFraganciaChip('212 VIP')">212 VIP</button>
+                                    <button type="button" class="fragancia-chip" onclick="seleccionarFraganciaChip('Invictus')">Invictus</button>
+                                    <button type="button" class="fragancia-chip" onclick="seleccionarFraganciaChip('Good Girl')">Good Girl</button>
+                                    <button type="button" class="fragancia-chip" onclick="seleccionarFraganciaChip('One Million')">One Million</button>
+                                    <button type="button" class="fragancia-chip" onclick="seleccionarFraganciaChip('Lacoste Blanca')">Lacoste Blanca</button>
+                                </div>
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label fw-bold small text-uppercase text-muted" style="letter-spacing: 0.05em;">
@@ -540,54 +693,31 @@
                             </div>
                         </div>
 
-                        <!-- Paso 3: Opción de Recarga (Cliente trae su propio envase) -->
-                        <div class="card p-2.5 px-3 mb-3 border shadow-2xs" style="background: #FFFBF7; border-color: #EBD9CE !important; border-radius: 12px;">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="cursor-pointer" onclick="document.getElementById('prep_es_recarga_check').click()">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-recycle fs-5" style="color: #8D4925;"></i>
-                                        <label class="form-check-label fw-bold cursor-pointer m-0" for="prep_es_recarga_check" style="color: #2C1E1A; font-size: 0.9rem;">
-                                            Es Recarga (cliente trae envase)
-                                        </label>
+                        <!-- Contenedor dinámico de Precio Unitario de Recarga (solo visible en modo Recarga) -->
+                        <div id="prep_recarga_precio_container" class="p-2.5 px-3 rounded-3 mb-3 border" style="display: none; background: #F0FDF4; border-color: #BBF7D0 !important;">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label fw-bold small text-success text-uppercase mb-1" style="font-size: 0.7rem;">
+                                        Precio Unitario de Recarga (COP):
+                                    </label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-white fw-bold">$</span>
+                                        <input type="number" id="prep_precio_recarga_custom" class="form-control fw-bold" step="100" min="0" placeholder="0" oninput="validarPreparacionPerfume()">
                                     </div>
-                                    <small class="text-muted d-block" style="font-size: 0.72rem;">
-                                        Descuenta únicamente gramos de esencia global. NO descuenta unidades de envase del inventario.
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <small class="text-muted d-block mt-sm-3" id="prep_recarga_precio_hint" style="font-size: 0.72rem;">
+                                        Se cobra el precio fijado para recarga de este tamaño.
                                     </small>
-                                </div>
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="prep_es_recarga_check" style="width: 2.8em; height: 1.4em;" onchange="toggleEsRecarga()">
-                                </div>
-                            </div>
-
-                            <!-- Contenedor dinámico de Precio Unitario de Recarga -->
-                            <div id="prep_recarga_precio_container" class="mt-2 pt-2 border-top" style="display: none;">
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-12 col-sm-6">
-                                        <label class="form-label fw-bold small text-muted text-uppercase mb-1" style="font-size: 0.7rem;">
-                                            Precio Unitario de Recarga (COP):
-                                        </label>
-                                        <div class="input-group input-group-sm">
-                                            <span class="input-group-text bg-white fw-bold">$</span>
-                                            <input type="number" id="prep_precio_recarga_custom" class="form-control fw-bold" step="100" min="0" placeholder="0" oninput="validarPreparacionPerfume()">
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6">
-                                        <small class="text-muted d-block mt-sm-3" id="prep_recarga_precio_hint" style="font-size: 0.72rem;">
-                                            Se cobra el precio fijado para recarga de este tamaño.
-                                        </small>
-                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Resumen y Validación Dinámica en Tiempo Real -->
-                        <div id="prep_resumen_box" class="p-3 rounded-3 mb-3" style="background: #FAF7F2; border: 1px solid rgba(141, 73, 37, 0.15); display: none;">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="small text-muted fw-bold">Consumo de Insumos:</span>
-                                <span class="fw-bold fs-6" id="prep_precio_total_display" style="color: #8D4925;">$ 0</span>
-                            </div>
-                            <div class="small" id="prep_consumo_texto" style="color: #2C1E1A;">
-                                -
+                        <!-- Resumen Compacto en una sola barra -->
+                        <div id="prep_resumen_box" class="p-2.5 px-3 rounded-3 mb-3" style="background: #FAF7F2; border: 1px solid rgba(141, 73, 37, 0.15); display: none;">
+                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                <div class="small" id="prep_consumo_texto" style="color: #2C1E1A;">-</div>
+                                <div class="fw-bolder fs-5 text-nowrap" id="prep_precio_total_display" style="color: #8D4925;">$ 0</div>
                             </div>
                         </div>
 
@@ -831,13 +961,9 @@
         </div>
     </div>
     <div class="d-flex gap-2">
-        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold" onclick="desplazarACaja()"
-            title="Ver Carrito">
-            <i class="fa-solid fa-arrow-down me-1"></i> Ver
-        </button>
         <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow text-nowrap"
-            onclick="cobrarDesdeMovil()">
-            <i class="fa-solid fa-cash-register me-1"></i> Cobrar
+            onclick="desplazarACaja()">
+            <i class="fa-solid fa-cart-shopping me-1"></i> Ver Carrito / Cobrar
         </button>
     </div>
 </div>
@@ -997,19 +1123,81 @@
         }
     }
 
+    function agregarEnvaseRapido(envaseId, esRecarga) {
+        const checkRecarga = document.getElementById('prep_es_recarga_check');
+        if (checkRecarga) {
+            checkRecarga.checked = !!esRecarga;
+        }
+        seleccionarEnvase(envaseId);
+        if (typeof toggleRecargaUI === 'function') {
+            toggleRecargaUI();
+        }
+        agregarPreparacionAlCarrito();
+    }
+
+    function setModoPerfumeria(esRecarga) {
+        const checkRecarga = document.getElementById('prep_es_recarga_check');
+        const btnEnvase = document.getElementById('btnModoConEnvase');
+        const btnRecarga = document.getElementById('btnModoRecarga');
+
+        if (checkRecarga) checkRecarga.checked = !!esRecarga;
+
+        if (btnEnvase && btnRecarga) {
+            if (esRecarga) {
+                btnEnvase.classList.remove('active-envase');
+                btnRecarga.classList.add('active-recarga');
+            } else {
+                btnEnvase.classList.add('active-envase');
+                btnRecarga.classList.remove('active-recarga');
+            }
+        }
+
+        // Actualizar tarjetas de tamaño dinámicamente según la modalidad
+        document.querySelectorAll('#gridEnvasesPos .envase-select-card').forEach(card => {
+            const env = JSON.parse(card.dataset.envase || '{}');
+            const priceEl = card.querySelector('.envase-price-display');
+            const metaEl = card.querySelector('.envase-meta-display');
+            if (priceEl) {
+                const p = esRecarga ? (env.precio_recarga || 0) : (env.precio_venta || 0);
+                priceEl.textContent = formatoCOP(p);
+                priceEl.style.color = esRecarga ? '#15803D' : '#8D4925';
+            }
+            if (metaEl) {
+                if (esRecarga) {
+                    metaEl.innerHTML = `<span class="text-success fw-semibold">Solo esencia</span> • <span class="text-muted">Consume ${Math.round(env.gramos_consumo || 0)}g</span>`;
+                } else {
+                    const stockHtml = (env.stock_unidades || 0) <= 0
+                        ? `<span class="badge bg-danger bg-opacity-10 text-danger px-1.5 py-0">Agotado</span>`
+                        : `<span class="text-muted">${env.stock_unidades} frascos disp.</span>`;
+                    metaEl.innerHTML = `<span class="text-muted">Consume ${Math.round(env.gramos_consumo || 0)}g</span> • ${stockHtml}`;
+                }
+            }
+        });
+
+        if (typeof toggleEsRecarga === 'function') {
+            toggleEsRecarga();
+        }
+    }
+
+    function seleccionarFraganciaChip(nombre) {
+        const input = document.getElementById('prep_fragancia_input');
+        if (input) {
+            input.value = nombre;
+            validarPreparacionPerfume();
+        }
+    }
+
     function seleccionarEnvase(envaseId) {
         envaseSeleccionadoId = envaseId;
         document.querySelectorAll('.envase-select-card').forEach(card => {
-            card.style.borderColor = '#E5E7EB';
-            card.style.background = '#FFFFFF';
-            card.style.boxShadow = 'none';
+            card.classList.remove('is-selected');
+            card.querySelector('.envase-check-badge')?.classList.add('d-none');
         });
 
         const activeCard = document.getElementById(`envase_card_${envaseId}`);
         if (activeCard) {
-            activeCard.style.borderColor = '#8D4925';
-            activeCard.style.background = 'rgba(141, 73, 37, 0.05)';
-            activeCard.style.boxShadow = '0 4px 12px rgba(141, 73, 37, 0.18)';
+            activeCard.classList.add('is-selected');
+            activeCard.querySelector('.envase-check-badge')?.classList.remove('d-none');
         }
 
         const checkRecarga = document.getElementById('prep_es_recarga_check');
@@ -1122,14 +1310,13 @@
         if (consumoTexto) {
             if (esRecarga) {
                 consumoTexto.innerHTML = `
-                    <span class="badge bg-primary text-white mb-1"><i class="fa-solid fa-recycle me-1"></i>RECARGA (Cliente trae envase)</span><br>
-                    Consumo estimado: <strong>${gramosTotales.toFixed(2)} g</strong> de esencia pura global.
-                    <br><span class="text-success fw-semibold"><i class="fa-solid fa-check me-1"></i>NO descuenta unidades de envases</span> | <span class="text-muted">${perfumeriaData.esencia_gramos.toFixed(2)} g esencia disponible</span>
+                    <span class="badge bg-success text-white me-1"><i class="fa-solid fa-recycle me-1"></i>Recarga</span>
+                    <span class="text-muted">-${gramosTotales.toFixed(0)}g esencia</span>
                 `;
             } else {
                 consumoTexto.innerHTML = `
-                    Consumo estimado: <strong>${gramosTotales.toFixed(2)} g</strong> de esencia pura y <strong>${cantidad}</strong> envase(s) de ${envase.nombre}.
-                    <br><span class="text-muted">Stock actual: ${envase.stock_unidades} envases disp. | ${perfumeriaData.esencia_gramos.toFixed(2)} g esencia disponible</span>
+                    <span class="badge text-white me-1" style="background: #2C1E1A;"><i class="fa-solid fa-prescription-bottle me-1"></i>Con Envase</span>
+                    <span class="text-muted">-${gramosTotales.toFixed(0)}g esencia • -${cantidad} envase</span>
                 `;
             }
         }
@@ -1234,11 +1421,6 @@
 
         showToast(`Agregado al carrito: ${cantidad}x ${itemNombre}`, 'success', 2500);
         renderCart(carrito.length - 1);
-
-        if (inputFragancia) inputFragancia.value = '';
-        if (inputCantidad) inputCantidad.value = 1;
-        validarPreparacionPerfume();
-    }
 
         if (inputFragancia) inputFragancia.value = '';
         if (inputCantidad) inputCantidad.value = 1;
@@ -1493,6 +1675,42 @@
     // ==========================================
     // INTERACCIÓN CON PRODUCTOS Y VARIANTES
     // ==========================================
+    document.getElementById('productsGrid')?.addEventListener('click', function (e) {
+        const card = e.target.closest('.product-card');
+        if (!card) return;
+        handleProductClick(card);
+    });
+
+    function updateProductCardsSelection() {
+        const qtyByProduct = {};
+        carrito.forEach(item => {
+            if (item.product_id) {
+                qtyByProduct[item.product_id] = (qtyByProduct[item.product_id] || 0) + item.cantidad;
+            }
+        });
+
+        document.querySelectorAll('#productsGrid .product-card').forEach(card => {
+            const productId = parseInt(card.dataset.productId, 10);
+            const qty = qtyByProduct[productId] || 0;
+            const badge = card.querySelector('.product-cart-badge');
+            const qtyVal = badge?.querySelector('.qty-val');
+
+            if (qty > 0) {
+                card.classList.add('is-selected');
+                if (badge) {
+                    badge.classList.remove('d-none');
+                    if (qtyVal) qtyVal.textContent = qty;
+                }
+            } else {
+                card.classList.remove('is-selected');
+                if (badge) {
+                    badge.classList.add('d-none');
+                    if (qtyVal) qtyVal.textContent = '0';
+                }
+            }
+        });
+    }
+
     function handleProductClick(el) {
         const pData = JSON.parse(el.dataset.product);
         const vData = JSON.parse(el.dataset.variants || '[]');
@@ -1916,6 +2134,7 @@
             }
 
             calcularCambio();
+            updateProductCardsSelection();
             return;
         }
 
@@ -1997,6 +2216,7 @@
         } else {
             calcularCambio();
         }
+        updateProductCardsSelection();
     }
 
     // Funciones de navegación rápida para móvil

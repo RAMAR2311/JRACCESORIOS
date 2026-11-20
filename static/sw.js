@@ -1,5 +1,5 @@
 /**
- * Service Worker Oficial de JR ACCESORIOS - PWA (v2.1)
+ * Service Worker Oficial de JR ACCESORIOS - PWA (v2.2)
  * Diseñado para alta confiabilidad en Tablets, Móviles y Web.
  * 
  * Reglas clave:
@@ -9,7 +9,7 @@
  * 4. Purgar cachés obsoletas automáticamente en cada actualización.
  */
 
-const CACHE_VERSION = 'v2.1';
+const CACHE_VERSION = 'v2.3';
 const CACHE_NAME = `jr-accesorios-pwa-${CACHE_VERSION}`;
 
 // Recursos offline mínimos inmutables
