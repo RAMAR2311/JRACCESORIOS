@@ -48,6 +48,26 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
 
+    # Configuración de resiliencia del pool de base de datos
+    if not db_url.startswith('sqlite'):
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            'pool_pre_ping': True,
+            'pool_recycle': 280,
+            'pool_timeout': 20,
+            'max_overflow': 10,
+        }
+    else:
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            'pool_pre_ping': True
+        }
+
+    # Sesión persistente y protección de cookies en móviles/tablets
+    from datetime import timedelta
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=14)
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
+    app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 
     # Inicializar Extensiones
     db.init_app(app)
@@ -61,6 +81,41 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
+
+    # Manejadores de error robustos para APIs y llamadas Fetch (evita HTML en respuestas JSON)
+    from flask import jsonify, request, flash
+    from flask_wtf.csrf import CSRFError
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        if request.is_json or request.path.startswith('/api/') or request.path.startswith('/sales/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
+            return jsonify({
+                'error': 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.',
+                'session_expired': True
+            }), 401
+        flash('Por favor inicia sesión para acceder a esta función.', 'warning')
+        return redirect(url_for('auth_bp.login', next=request.url))
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        if request.is_json or request.path.startswith('/api/') or request.path.startswith('/sales/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
+            return jsonify({
+                'error': 'El token de seguridad ha expirado. Por favor recarga la página para continuar.',
+                'csrf_error': True
+            }), 400
+        flash('Tu sesión o token de seguridad ha expirado. Por favor recarga la página.', 'warning')
+        return redirect(request.referrer or url_for('index'))
+
+    @app.errorhandler(500)
+    def handle_500_error(e):
+        import traceback
+        traceback.print_exc()
+        if request.is_json or request.path.startswith('/api/') or request.path.startswith('/sales/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
+            return jsonify({
+                'error': 'Ocurrió un error interno en el servidor. Por favor intenta nuevamente.',
+                'status': 500
+            }), 500
+        return ("Ocurrió un error interno en el servidor.", 500)
 
     # Importar y Registrar Blueprints
     from routes.sales import sales_bp
@@ -263,11 +318,18 @@ def create_app():
             return redirect(url_for('admin_bp.dashboard'))
         return redirect(url_for('sales_bp.caja_visual'))
 
+    @app.route('/api/csrf-token', methods=['GET'])
+    def api_csrf_token():
+        from flask_wtf.csrf import generate_csrf
+        return jsonify({'csrf_token': generate_csrf()})
+
     @app.route('/sw.js')
     def sw():
         from flask import send_from_directory, make_response
         resp = make_response(send_from_directory('static', 'sw.js', mimetype='application/javascript'))
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        resp.headers['Pragma'] = 'no-cache'
+        resp.headers['Expires'] = '0'
         return resp
 
     @app.route('/manifest.json')

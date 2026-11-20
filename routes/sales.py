@@ -38,7 +38,7 @@ def procesar_venta():
     Se espera que los datos vengan en el cuerpo de la petición (JSON)
     Ej: {'items': [{ 'product_id': 1, 'cantidad': 2, 'precio_final': 15.50}, ...], 'metodo_pago': 'transferencia'}
     """
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     items = data.get('items', [])
     pagos_data = data.get('pagos', [])  # Nuevo: array de pagos mixtos
     metodo_pago_legacy = data.get('metodo_pago', 'efectivo')  # Retrocompatibilidad
@@ -396,7 +396,9 @@ def procesar_venta():
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Ocurrió un error interno al procesar la venta.'}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Error al procesar la venta: {str(e)}'}), 500
 
 @sales_bp.route('/api/search_products')
 @login_required

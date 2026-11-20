@@ -266,9 +266,19 @@
             gap: 12px;
         }
 
+        /* Desbloquear scroll anidado en móviles y tablets para evitar gestos atrapados */
+        #productsGrid {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+
+        .product-card, .envase-select-card {
+            touch-action: manipulation;
+        }
+
         /* Espacio para que el contenido no quede oculto detrás de la barra fija en móvil */
         body {
-            padding-bottom: 85px !important;
+            padding-bottom: 95px !important;
         }
     }
 </style>
@@ -1405,7 +1415,14 @@
         return visibles;
     }
 
-    searchInput.addEventListener('input', filtrarTarjetas);
+    // Debounce de 90ms para evitar bloqueo del hilo principal en tablets/móviles al teclear
+    let searchDebounceTimer = null;
+    function filtrarTarjetasDebounced() {
+        if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(filtrarTarjetas, 90);
+    }
+
+    searchInput.addEventListener('input', filtrarTarjetasDebounced);
 
     // Enter en el buscador: si coincide exactamente con SKU o solo hay 1 producto visible, seleccionarlo
     searchInput.addEventListener('keydown', function (e) {
@@ -1974,7 +1991,8 @@
             if (mItems) mItems.innerText = `${totalItems} items`;
         }
 
-        if (document.getElementById('toggle_pago_mixto').checked) {
+        const toggleDividido = document.getElementById('togglePagoDividido');
+        if (toggleDividido && toggleDividido.checked) {
             actualizarSaldoRestante();
         } else {
             calcularCambio();
@@ -2082,9 +2100,9 @@
 
         const recibido = parseFloat(inputRecibido.value) || 0;
 
-        if (recibido <= 0 && total <= 0) {
+        if (!inputRecibido.value || recibido <= 0) {
             cambioEl.innerText = '$0';
-            cambioEl.style.color = '#059669';
+            cambioEl.style.color = '#5D4037';
             return;
         }
 
@@ -2311,25 +2329,75 @@
             this.disabled = true;
             this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Procesando Cobro...';
 
+            // AbortController con timeout de 25 segundos para evitar bloqueos en tablets/móviles
+            const abortCtrl = new AbortController();
+            const timeoutTimer = setTimeout(() => abortCtrl.abort(), 25000);
+
             try {
-                const response = await fetch('/sales/nueva', {
+                let tokenActual = csrf_token;
+
+                let response = await fetch('/sales/nueva', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': csrf_token
+                        'X-CSRFToken': tokenActual,
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: abortCtrl.signal
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    let reciboWindow = window.open(`/sales/recibo/${data.sale_id}`, '_blank');
-                    if (!reciboWindow) {
-                        showToast('⚠️ El navegador bloqueó la pestaña del recibo.', 'warning');
+                // Si el token CSRF expiró (400), intentar renovarlo automáticamente una vez
+                if (response.status === 400) {
+                    try {
+                        const tokenResp = await fetch('/api/csrf-token');
+                        if (tokenResp.ok) {
+                            const tokenData = await tokenResp.json();
+                            if (tokenData.csrf_token) {
+                                tokenActual = tokenData.csrf_token;
+                                response = await fetch('/sales/nueva', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': tokenActual,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify(payload),
+                                    signal: abortCtrl.signal
+                                });
+                            }
+                        }
+                    } catch (tokenErr) {
+                        console.warn('No se pudo refrescar CSRF token automáticamente:', tokenErr);
                     }
+                }
 
-                    showToast(`✅ ¡Cobro Procesado con Éxito! Venta #${data.sale_id}`, 'success', 4000);
+                clearTimeout(timeoutTimer);
+
+                // Lectura segura del contenido retornado (evita SyntaxError si el servidor devuelve HTML)
+                let data = null;
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    try {
+                        data = await response.json();
+                    } catch (parseErr) {
+                        console.warn('Error parseando JSON de respuesta:', parseErr);
+                    }
+                }
+
+                if (response.ok && data && data.success) {
+                    const reciboUrl = `/sales/recibo/${data.sale_id}`;
+                    let reciboWindow = null;
+                    try {
+                        reciboWindow = window.open(reciboUrl, '_blank');
+                    } catch (wErr) {}
+
+                    if (!reciboWindow) {
+                        // En Safari iOS y PWA móvil, alertar amigablemente con enlace directo
+                        showToast(`✅ Venta #${data.sale_id} procesada. <a href="${reciboUrl}" target="_blank" class="text-white text-decoration-underline ms-1 fw-bold">Ver Recibo</a>`, 'success', 8000);
+                    } else {
+                        showToast(`✅ ¡Cobro Procesado con Éxito! Venta #${data.sale_id}`, 'success', 4000);
+                    }
 
                     carrito = [];
                     pagosMixtos = [];
@@ -2338,18 +2406,42 @@
                     if (cashInput) cashInput.value = '';
                     renderCart();
 
-                    // Recargar en 1.2 segundos para reflejar los nuevos stocks
+                    // Recarga suave para reflejar inventario actualizado
                     setTimeout(() => {
                         window.location.reload();
-                    }, 1200);
+                    }, 1400);
                 } else {
-                    showToast(`Error: ${data.error || 'No se pudo procesar la venta'}`, 'danger', 4500);
+                    let errMsg = data && data.error ? data.error : null;
+                    if (!errMsg) {
+                        if (response.status === 400) {
+                            errMsg = 'Token de seguridad expirado o datos de venta inválidos. Por favor recarga la página.';
+                        } else if (response.status === 401 || response.status === 403) {
+                            errMsg = 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.';
+                            setTimeout(() => { window.location.href = '/auth/login'; }, 1800);
+                        } else if (response.status === 503) {
+                            errMsg = 'El servidor no está disponible en este momento. Revisa tu conexión a internet.';
+                        } else if (response.status >= 500) {
+                            errMsg = 'Ocurrió un error en el servidor al guardar la venta. Intenta nuevamente.';
+                        } else {
+                            errMsg = `Error al registrar la venta (Código HTTP ${response.status}).`;
+                        }
+                    }
+                    showToast(`⚠️ ${errMsg}`, 'danger', 6000);
                     this.disabled = false;
                     this.innerHTML = originalHtml;
                 }
             } catch (e) {
+                clearTimeout(timeoutTimer);
                 console.error('Error al procesar cobro:', e);
-                showToast('Error de conexión con el servidor.', 'danger');
+                let errMsg = 'Error de conexión con el servidor.';
+                if (e.name === 'AbortError') {
+                    errMsg = 'La solicitud tardó demasiado tiempo en responder (Tiempo de espera agotado). Verifica tu conexión o recarga la página.';
+                } else if (!navigator.onLine) {
+                    errMsg = 'Sin conexión a internet. Revisa tu señal Wi-Fi o datos móviles.';
+                } else if (e.message && !e.message.includes('JSON')) {
+                    errMsg = `Error de conexión: ${e.message}`;
+                }
+                showToast(`⚠️ ${errMsg}`, 'danger', 6000);
                 this.disabled = false;
                 this.innerHTML = originalHtml;
             }
